@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Urjii Software Company</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <h2 style="color: var(--primary-color); font-family: var(--font-heading);">Urjii Software</h2>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="contact.html" style="color: var(--primary-color);">Contact</a></li>
+                <li><a href="order.html" class="btn">Order Now</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="lang-toggle"><i class="fa-solid fa-globe"></i> EN</button>
+                <button class="theme-toggle"><i class="fa-solid fa-moon"></i></button>
+                <i class="fa-solid fa-bars hamburger"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="padding-top: 100px;">
+        <section class="container hidden">
+            <h1 class="section-title">Contact Us</h1>
+            <p style="text-align: center; margin-bottom: 40px; font-size: 1.1rem;">
+                Have a question or want to work together? We'd love to hear from you!
+            </p>
+
+            <div class="grid" style="align-items: start;">
+                
+                <!-- Left Side: Contact Info & Map -->
+                <div class="card" style="text-align: left;">
+                    <h3 style="margin-bottom: 25px; color: var(--primary-color);">Get In Touch</h3>
+                    
+                    <!-- Contact Details -->
+                    <div style="margin-bottom: 15px; display: flex; align-items: center;">
+                        <i class="fa-solid fa-location-dot" style="font-size: 1.2rem; color: var(--primary-color); width: 30px; margin-bottom: 0;"></i>
+                        <span>Bole, Addis Ababa, Ethiopia</span>
+                    </div>
+                    <div style="margin-bottom: 15px; display: flex; align-items: center;">
+                        <i class="fa-solid fa-phone" style="font-size: 1.2rem; color: var(--primary-color); width: 30px; margin-bottom: 0;"></i>
+                        <span>+251 911 234 567</span>
+                    </div>
+                    <div style="margin-bottom: 30px; display: flex; align-items: center;">
+                        <i class="fa-solid fa-envelope" style="font-size: 1.2rem; color: var(--primary-color); width: 30px; margin-bottom: 0;"></i>
+                        <span>info@urjiisoftware.com</span>
+                    </div>
+
+                    <!-- Social Media -->
+                    <h4 style="margin-bottom: 15px;">Follow Us</h4>
+                    <div class="social-icons" style="margin-bottom: 30px;">
+                        <a href="#" style="color: var(--text-light);"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" style="color: var(--text-light);"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" style="color: var(--text-light);"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#" style="color: var(--text-light);"><i class="fa-brands fa-telegram"></i></a>
+                    </div>
+
+                    <!-- Google Map Embed -->
+                    <div style="width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid rgba(201, 160, 99, 0.2);">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126115.11523450912!2d38.68115594164808!3d8.963479541571545!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b85cef5ab402d%3A0x8467b6b037a24e49!2sAddis%20Ababa%2C%20Ethiopia!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus" 
+                            width="100%" 
+                            height="250" 
+                            style="border:0; display: block;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- Right Side: Contact Form -->
+             <!-- Replace the existing right-side card in contact.html with this -->
+<div class="form-animated-border" style="text-align: left;">
+    <div class="form-inner">
+        <h3 style="margin-bottom: 25px; color: var(--primary-color);">Send a Message</h3>
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="contactName">Full Name *</label>
+                <input type="text" id="contactName" class="form-control" placeholder="Abebe Kebede" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contactEmail">Email Address *</label>
+                <input type="email" id="contactEmail" class="form-control" placeholder="you@example.com" required>
+                <span id="contactEmailError" class="error-msg">Please enter a valid email address.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="contactSubject">Subject</label>
+                <input type="text" id="contactSubject" class="form-control" placeholder="Project Inquiry">
+            </div>
+
+            <div class="form-group">
+                <label for="contactMessage">Message *</label>
+                <textarea id="contactMessage" class="form-control" rows="6" placeholder="How can we help you?" required></textarea>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%;">Send Message</button>
+        </form>
+    </div>
+</div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h4>Urjii Software</h4>
+                    <p>Empowering businesses through innovative tech solutions.</p>
+                </div>
+                <div>
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="contact.html" style="color: var(--primary-color);">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Connect</h4>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-telegram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2026 Urjii Software Company. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- External JS -->
+    <script src="script.js"></script>
+</body>
+</html>
