@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register | Urjii Software</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+      <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo-container">
+                <img src="logo.png" alt="Urjii Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/150/C9A063/000000?text=U'">
+                <div class="logo-text"><span class="text-gold">Urjii</span><span class="text-black">Software</span></div>
+            </a>
+            <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="services.html">Services</a></li><li><a href="contact.html">Contact</a></li><li><a href="order.html" class="btn">Order Now</a></li><li id="authHeaderActions"></li></ul>
+            <div class="nav-actions"><button class="theme-toggle"><i class="fa-solid fa-moon"></i></button><i class="fa-solid fa-bars hamburger"></i></div>
+        </div>
+    </header>
+
+    <main style="padding-top: 120px; padding-bottom: 80px; min-height: 80vh; display: flex; justify-content: center; align-items: center;">
+        <div class="form-animated-border" style="width: 100%; max-width: 800px;">
+            <div class="form-inner">
+                <div style="display: flex; justify-content: center; margin-bottom: 25px; gap: 10px;">
+                    <button id="showLoginBtn" class="btn" style="flex: 1; background-color: var(--primary-color); color: #fff;">Login</button>
+                    <button id="showRegisterBtn" class="btn" style="flex: 1; background-color: transparent; color: var(--text-light); border: 1px solid var(--primary-color);">Register</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form id="loginForm">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: var(--primary-color);">Welcome Back</h3>
+                    <div class="form-group"><label>Email or Phone Number</label><input type="text" id="loginIdentifier" class="form-control" placeholder="example@email.com or +251912..." required></div>
+                    <div class="form-group"><label>Password</label>
+                        <div class="password-container"><input type="password" id="loginPassword" class="form-control" required><i class="fa-solid fa-eye toggle-password"></i></div>
+                        <span id="loginError" class="error-msg">Invalid credentials. Please try again.</span>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Sign In</button>
+                </form>
+
+                <!-- ADVANCED REGISTER FORM -->
+                <form id="registerForm" style="display: none;">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: var(--primary-color);">Create Account</h3>
+                    <div class="form-grid-3">
+                        <div class="form-group"><label>First Name *</label><input type="text" id="regFirstName" class="form-control" required></div>
+                        <div class="form-group"><label>Middle Name</label><input type="text" id="regMidName" class="form-control"></div>
+                        <div class="form-group"><label>Last Name *</label><input type="text" id="regLastName" class="form-control" required></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Gender *</label><select id="regGender" class="form-control" required><option value="">Select Gender</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                        <div class="form-group"><label>Age *</label><input type="number" id="regAge" class="form-control" min="16" max="100" required></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Country *</label><select id="regCountry" class="form-control dynamic-country" required></select></div>
+                        <div class="form-group"><label>State / Region *</label><input type="text" id="regState" class="form-control" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <div class="phone-input-group">
+                            <select id="regPhoneCode" class="form-control phone-country dynamic-phone-code" required></select>
+                            <input type="number" id="regPhoneNum" class="form-control phone-number" placeholder="Enter number..." required>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Email Address *</label><input type="email" id="regEmail" class="form-control" required></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Password *</label><div class="password-container"><input type="password" id="regPassword" class="form-control" minlength="6" required><i class="fa-solid fa-eye toggle-password"></i></div></div>
+                        <div class="form-group"><label>Confirm Password *</label><div class="password-container"><input type="password" id="regConfirmPassword" class="form-control" required><i class="fa-solid fa-eye toggle-password"></i></div></div>
+                    </div>
+                    <div class="form-group checkbox-group"><input type="checkbox" id="termsAgree" required><label style="margin:0; font-weight: normal;">I agree to the <a href="terms.html">Terms</a> & <a href="privacy.html">Privacy Policy</a>.</label></div>
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </main>
+<!-- Footer -->
+   
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div><h4>Urjii Software</h4><p>Empowering businesses through innovative tech solutions.</p></div>
+                <div><h4>Quick Links</h4><ul class="footer-links"><li><a href="about.html">About Us</a></li><li><a href="portfolio.html">Portfolio</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="blog.html">Blogs</a></li></ul></div>
+                <div><h4>Legal</h4><ul class="footer-links"><li><a href="terms.html">Terms & Conditions</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+                <div>
+                    <h4>Newsletter</h4>
+                    <form class="newsletter-form"><input type="email" class="newsletter-input" placeholder="Email address" required><button type="submit" class="newsletter-btn"><i class="fa-solid fa-paper-plane"></i></button></form>
+                    <div class="social-icons" style="margin-top: 20px;"><a href="#"><i class="fa-brands fa-facebook-f"></i></a><a href="#"><i class="fa-brands fa-twitter"></i></a><a href="#"><i class="fa-brands fa-linkedin-in"></i></a></div>
+                </div>
+            </div>
+            <div class="copyright"><p>&copy; 2026 Urjii Software Company. All Rights Reserved.</p></div>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

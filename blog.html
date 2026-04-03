@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog & Insights | Urjii Software</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+     <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo-container">
+                <img src="logo.png" alt="Urjii Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/150/C9A063/000000?text=U'">
+                <div class="logo-text"><span class="text-gold">Urjii</span><span class="text-black">Software</span></div>
+            </a>
+            <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="services.html">Services</a></li><li><a href="contact.html">Contact</a></li><li><a href="order.html" class="btn">Order Now</a></li><li id="authHeaderActions"></li></ul>
+            <div class="nav-actions"><button class="theme-toggle"><i class="fa-solid fa-moon"></i></button><i class="fa-solid fa-bars hamburger"></i></div>
+        </div>
+    </header>
+    <main style="padding: 120px 0 80px;">
+        <section class="container hidden">
+            <h1 class="section-title">Latest Insights</h1>
+            <div style="text-align: center;"><input type="text" id="blogSearch" class="blog-search form-control" placeholder="Search articles..."></div>
+            
+            <div class="grid">
+                <article class="card blog-card" style="padding:0; overflow:hidden;">
+                    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085" alt="Web Dev">
+                    <div class="blog-card-content">
+                        <span class="blog-category">Web Development</span>
+                        <h3><a href="blog-single.html">Why Your Business Needs a Custom Web App in 2026</a></h3>
+                        <p style="font-size: 0.9rem; margin-top: 10px; color:#888;">Off-the-shelf solutions work, but custom web applications provide unmatched scalability...</p>
+                    </div>
+                </article>
+                <article class="card blog-card" style="padding:0; overflow:hidden;">
+                    <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c" alt="Mobile App">
+                    <div class="blog-card-content">
+                        <span class="blog-category">Tech Tips</span>
+                        <h3><a href="#">Native vs Cross-Platform App Development</a></h3>
+                        <p style="font-size: 0.9rem; margin-top: 10px; color:#888;">Choosing the right framework can save you thousands of dollars. Here is what you need to know.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+     <!-- Footer -->
+   
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+              <div><a href="index.html" class="logo-container" style="align-items:flex-start; margin-bottom:15px;"><img src="logo.png" class="logo-img" alt="Logo"><div class="logo-text"><span class="text-gold">Urjii</span><span class="text-black" style="color:#fff;">Software</span></div></a><p>Empowering businesses through inovetive tech solutions.</p></div>
+                <div><h4>Quick Links</h4><ul class="footer-links"><li><a href="about.html">About Us</a></li><li><a href="portfolio.html">Portfolio</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="blog.html">Blogs</a></li></ul></div>
+                <div><h4>Legal</h4><ul class="footer-links"><li><a href="terms.html">Terms & Conditions</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+                <div>
+                    <h4>Newsletter</h4>
+                    <form class="newsletter-form"><input type="email" class="newsletter-input" placeholder="Email address" required><button type="submit" class="newsletter-btn"><i class="fa-solid fa-paper-plane"></i></button></form>
+                    <div class="social-icons" style="margin-top: 20px;"><a href="#"><i class="fa-brands fa-facebook-f"></i></a><a href="#"><i class="fa-brands fa-twitter"></i></a><a href="#"><i class="fa-brands fa-linkedin-in"></i></a></div>
+                </div>
+            </div>
+            <div class="copyright"><p>&copy; 2026 Urjii Software Company. All Rights Reserved.</p></div>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+    
+</body>
+</html>
+
+
