@@ -1,12 +1,8 @@
 {
-  "name": "urjii-backend",
+  "name": "urjii-software",
   "version": "1.0.0",
-  "description": "Backend for Urjii Software",
-  "main": "/index.js",
-  "scripts": {
-    "start": "node /index.js",
-    "dev": "nodemon /index.js"
-  },
+  "description": "Urjii Software Flat Setup",
+  "main": "index.js",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
