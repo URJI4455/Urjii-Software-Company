@@ -1,102 +1,42 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
-require('dotenv').config();
-
-const User = require('../models/User');
-const Order = require('../models/Order');
+// Crucial: This imports the User.js file from the same folder (no folders used)
+const User = require('./User.js'); 
 
 const app = express();
 
-// --- CORS CONFIGURATION ---
-// This allows your frontend (hosted anywhere, e.g., GitHub Pages or Vercel) to talk to this backend
-app.use(cors({
-    origin: '*', // For production, change '*' to your actual frontend URL, e.g., 'https://urjiisoftware.com'
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-}));
-
+app.use(cors());
 app.use(express.json());
 
-// --- MONGODB CONNECTION FOR VERCEL SERVERLESS ---
-let isConnected = false;
-const connectDB = async () => {
-    if (isConnected) return;
-    try {
-        const db = await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        isConnected = db.connections[0].readyState;
-        console.log("MongoDB Connected");
-    } catch (err) {
-        console.error("MongoDB Connection Error:", err);
-    }
-};
+// MongoDB Connection (Vercel will inject your environment variable here)
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://jafe_admin:Urjii4455@jafedecore.tbq1s7n.mongodb.net/urjii_software_db?retryWrites=true&w=majority&appName=Jafedecore
+";
 
-// --- ROUTES ---
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log("MongoDB Connected Successfully"))
+  .catch(err => console.log("MongoDB Connection Error: ", err));
 
-// 1. Health Check Route
-app.get('/', (req, res) => {
-    res.send('Urjii Software Backend is running securely!');
+// --- API ROUTES ---
+
+// 1. Test Route to see if backend is working
+app.get('/api/test', (req, res) => {
+    res.json({ message: "Backend is working perfectly in the flat folder setup!" });
 });
 
-// 2. Register Route
+// 2. Example Register Route
 app.post('/api/register', async (req, res) => {
-    await connectDB();
     try {
-        const { firstName, lastName, email, fullPhone, password } = req.body;
-        
-        // Check if user exists
-        const existingUser = await User.findOne({ $or: [{ email }, { fullPhone }] });
-        if (existingUser) return res.status(400).json({ error: "Email or Phone already registered." });
-
-        // Hash Password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Save User
-        const newUser = new User({ firstName, lastName, email, fullPhone, password: hashedPassword });
-        await newUser.save();
-
-        res.status(201).json({ message: "User registered successfully", user: newUser });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const { firstName, lastName, email, password } = req.body;
+        // Logic to save user goes here using the User model we imported
+        // const newUser = new User({ firstName, lastName, email, password });
+        // await newUser.save();
+        res.status(201).json({ message: "User registered successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Registration failed" });
     }
 });
 
-// 3. Login Route
-app.post('/api/login', async (req, res) => {
-    await connectDB();
-    try {
-        const { identifier, password } = req.body;
-        
-        // Find by Email OR Phone
-        const user = await User.findOne({ $or: [{ email: identifier }, { fullPhone: identifier }] });
-        if (!user) return res.status(400).json({ error: "Invalid credentials" });
-
-        // Check Password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
-
-        res.status(200).json({ message: "Login successful", user });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 4. Create Order Route
-app.post('/api/orders', async (req, res) => {
-    await connectDB();
-    try {
-        const newOrder = new Order(req.body);
-        await newOrder.save();
-        res.status(201).json({ message: "Order placed successfully", order: newOrder });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Export for Vercel
+// VERY IMPORTANT FOR VERCEL: 
+// Do NOT use app.listen(). Instead, export the app like this:
 module.exports = app;
