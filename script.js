@@ -154,12 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================
        5. INTERNATIONAL DATA & FORMS
        ========================================== */
-    const countriesData = [
+    const countriesData =[
         { name: "Ethiopia", code: "+251", flag: "🇪🇹", min: 9, max: 9 }, { name: "Kenya", code: "+254", flag: "🇰🇪", min: 9, max: 10 },
         { name: "Uganda", code: "+256", flag: "🇺🇬", min: 9, max: 9 }, { name: "Tanzania", code: "+255", flag: "🇹🇿", min: 9, max: 9 },
         { name: "USA", code: "+1", flag: "🇺🇸", min: 10, max: 10 }, { name: "UK", code: "+44", flag: "🇬🇧", min: 10, max: 10 },
         { name: "UAE", code: "+971", flag: "🇦🇪", min: 9, max: 9 }
-    ]; // Truncated for brevity but functionality remains identical
+    ]; 
 
     function populateCountrySelects() {
         const countrySelects = document.querySelectorAll('.dynamic-country');
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomAlert("Processing registration...", "processing");
 
             try {
-                const response = await fetch('/api/register', {
+                const response = await fetch('https://urjii-software-company.vercel.app/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userData)
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomAlert("Authenticating...", "processing");
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch('https://urjii-software-company.vercel.app/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: id, password: pass })
@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomAlert('Processing your order...', 'processing');
             
             try {
-                const response = await fetch('/api/order', {
+                const response = await fetch('https://urjii-software-company.vercel.app/api/order', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}` // Pass JWT for protected route
@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             showCustomAlert("Sending your message...", "processing");
             try {
-                const response = await fetch('/api/contact', {
+                const response = await fetch('https://urjii-software-company.vercel.app/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -533,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             showCustomAlert("Submitting your review...", "processing");
             try {
-                await fetch('/api/review', {
+                await fetch('https://urjii-software-company.vercel.app/api/review', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name: revName, rating: currentRating, review: revText })
