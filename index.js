@@ -9,14 +9,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection (Vercel will inject your environment variable here)
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://jafe_admin:Urjii4455@jafedecore.tbq1s7n.mongodb.net/urjii_software_db?retryWrites=true&w=majority&appName=Jafedecore
-";
+// // This tells the app to get the connection string securely from Vercel
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    console.log("CRITICAL ERROR: MONGODB_URI is missing from Vercel Environment Variables!");
+}
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log("MongoDB Connected Successfully"))
   .catch(err => console.log("MongoDB Connection Error: ", err));
-
 // --- API ROUTES ---
 
 // 1. Test Route to see if backend is working
