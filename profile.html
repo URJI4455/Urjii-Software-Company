@@ -11,32 +11,6 @@
     
     <!-- External CSS -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- Profile Specific Styles for Tabs -->
-    <style>
-        .profile-container { display: flex; gap: 30px; align-items: flex-start; min-height: 60vh; }
-        .profile-sidebar { width: 250px; background-color: var(--bg-light); border-radius: 8px; border: 1px solid rgba(201, 160, 99, 0.2); padding: 20px 0; flex-shrink: 0; }
-        body.dark-mode .profile-sidebar { background-color: var(--surface-dark); border: none; }
-        .profile-sidebar ul li a { display: block; padding: 12px 20px; color: var(--text-light); font-weight: 500; border-left: 3px solid transparent; cursor: pointer; transition: 0.3s; }
-        .profile-sidebar ul li a:hover, .profile-sidebar ul li a.active { background-color: rgba(201, 160, 99, 0.1); border-left-color: var(--primary-color); color: var(--primary-color); }
-        .profile-content { flex-grow: 1; background-color: var(--bg-light); border-radius: 8px; border: 1px solid rgba(201, 160, 99, 0.2); padding: 30px; }
-        body.dark-mode .profile-content { background-color: var(--surface-dark); border: none; }
-        .tab-pane { display: none; animation: fadeIn 0.3s ease; }
-        .tab-pane.active { display: block; }
-        
-        /* Affiliate Stats */
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: rgba(201, 160, 99, 0.05); border: 1px solid rgba(201, 160, 99, 0.2); padding: 20px; border-radius: 8px; text-align: center; }
-        .stat-card h3 { font-size: 2rem; color: var(--primary-color); margin-bottom: 5px; }
-        .copy-box { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; margin-top: 10px; }
-        .copy-box input { flex-grow: 1; border: none; padding: 10px 15px; background: transparent; color: var(--text-light); outline: none; }
-        .copy-box button { background: var(--primary-color); color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-weight: 500; }
-        
-        @media (max-width: 768px) {
-            .profile-container { flex-direction: column; }
-            .profile-sidebar { width: 100%; }
-        }
-    </style>
 </head>
 <body>
 
@@ -109,7 +83,7 @@
                     <div id="tab-orders" class="tab-pane">
                         <h3 style="margin-bottom: 20px; color: var(--primary-color);">Order History</h3>
                         <div id="ordersContainer">
-                            <!-- Skeletons will be injected here by JS, followed by data -->
+                            <!-- Skeletons will be injected here by JS -->
                         </div>
                     </div>
 
@@ -121,7 +95,7 @@
                         <div id="affiliatePromoView" style="text-align: center; padding: 40px 20px; border: 2px dashed var(--primary-color); border-radius: 8px; margin-top: 20px;">
                             <i class="fa-solid fa-bullhorn" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 15px;"></i>
                             <h4 style="margin-bottom: 10px; font-size: 1.2rem;">Become an Affiliate Partner!</h4>
-                            <p style="margin-bottom: 25px; color: #888;">Share your unique link and earn a <strong>10% commission</strong> on every successful project ordered through your referral. No hidden fees, instant tracking.</p>
+                            <p style="margin-bottom: 25px; color: #888;">Share your unique link and earn a <strong>10% commission</strong> on every successful project ordered through your referral.</p>
                             <button id="joinAffiliateBtn" class="btn"><i class="fa-solid fa-handshake"></i> Join Affiliate Program</button>
                         </div>
 
@@ -174,7 +148,6 @@
             </div>
         </div>
     </main>
- <!-- Footer -->
    
     <footer>
         <div class="container">
@@ -192,119 +165,8 @@
         </div>
     </footer>
 
-    <!-- Main External Script -->
+    <!-- Main External Script handles all profile logic now -->
     <script src="script.js"></script>
 
-    <!-- Profile Specific Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. Setup Profile Tabs Logic
-            const tabLinks = document.querySelectorAll('.profile-sidebar a[data-tab]');
-            const tabPanes = document.querySelectorAll('.tab-pane');
-            
-            tabLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    const targetId = e.target.getAttribute('data-tab');
-                    if(!targetId) return;
-                    
-                    // Remove active from all tabs
-                    tabLinks.forEach(t => t.classList.remove('active'));
-                    tabPanes.forEach(p => p.classList.remove('active'));
-                    
-                    // Add active to clicked tab
-                    e.target.classList.add('active');
-                    document.getElementById(targetId).classList.add('active');
-                });
-            });
-
-            // 2. Affiliate Logic (Registration & View Toggling)
-            const promoView = document.getElementById('affiliatePromoView');
-            const dashboardView = document.getElementById('affiliateDashboardView');
-            const joinAffiliateBtn = document.getElementById('joinAffiliateBtn');
-            const refLinkInput = document.getElementById('refLinkInput');
-
-            // Check if user is already an affiliate
-            let isAffiliate = localStorage.getItem('urjii_is_affiliate') === 'true';
-
-            function updateAffiliateUI() {
-                if(isAffiliate) {
-                    promoView.style.display = 'none';
-                    dashboardView.style.display = 'block';
-                    
-                    // Generate Unique link based on User Info
-                    const savedUser = JSON.parse(localStorage.getItem('urjii_user'));
-                    const userNameStr = savedUser && savedUser.firstName ? savedUser.firstName.toUpperCase() : 'USER';
-                    // Generate a pseudo-random ID to append to the name
-                    const uniqueId = Math.floor(1000 + Math.random() * 9000); 
-                    
-                    // Only generate link once if not generated before, to keep it persistent you could save it in localStorage
-                    let storedRefLink = localStorage.getItem('urjii_ref_link');
-                    if(!storedRefLink) {
-                        storedRefLink = `https://urjiisoftware.com/ref/${userNameStr}${uniqueId}`;
-                        localStorage.setItem('urjii_ref_link', storedRefLink);
-                    }
-                    refLinkInput.value = storedRefLink;
-
-                } else {
-                    promoView.style.display = 'block';
-                    dashboardView.style.display = 'none';
-                }
-            }
-
-            // Initialize view on load
-            updateAffiliateUI();
-
-            // Handle "Join Affiliate Program" Click
-            if(joinAffiliateBtn) {
-                joinAffiliateBtn.addEventListener('click', () => {
-                    // Register user
-                    localStorage.setItem('urjii_is_affiliate', 'true');
-                    isAffiliate = true;
-                    updateAffiliateUI();
-                    
-                    // Alert success
-                    if(typeof showCustomAlert === "function") {
-                        showCustomAlert("Welcome to the Affiliate Program! Your dashboard is ready.", "success");
-                    } else {
-                        alert("Welcome to the Affiliate Program! Your dashboard is ready.");
-                    }
-                });
-            }
-
-            // 3. Affiliate Copy Link Logic
-            const copyBtn = document.getElementById('copyRefBtn');
-            if(copyBtn) {
-                copyBtn.addEventListener('click', () => {
-                    refLinkInput.select();
-                    document.execCommand("copy");
-                    
-                    if(typeof showCustomAlert === "function") {
-                        showCustomAlert("Referral Link Copied!", "success");
-                    } else {
-                        alert("Referral Link Copied!");
-                    }
-                });
-            }
-
-            // 4. Forms Submit Mock Actions
-            document.getElementById('profileForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                if(typeof showCustomAlert === "function") showCustomAlert("Profile Updated Successfully!", "success");
-                else alert("Profile Updated Successfully!");
-            });
-            document.getElementById('passwordForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                if(typeof showCustomAlert === "function") showCustomAlert("Password Updated Successfully!", "success");
-                else alert("Password Updated Successfully!");
-                e.target.reset();
-            });
-            document.getElementById('settingsForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                if(typeof showCustomAlert === "function") showCustomAlert("Settings Saved!", "success");
-                else alert("Settings Saved!");
-            });
-        });
-    </script>
 </body>
-</html>
+                                                           </html>
