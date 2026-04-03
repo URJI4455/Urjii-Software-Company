@@ -1,19 +1,117 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // UI UTILITIES
+
+
+    // Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      }, err => {
+        console.log('ServiceWorker registration failed: ', err);
+      });
+  });
+}
+    
+    /* ==========================================
+       1. GLOBAL UI UTILITIES (Custom Alerts)
+       ========================================== */
     function showCustomAlert(message, type = 'success', callback = null) {
+        // Remove existing alert if any
+        const existing = document.querySelector('.custom-alert-overlay');
+        if (existing) existing.remove();
+
         const overlay = document.createElement('div');
         overlay.className = 'custom-alert-overlay';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 9999; animation: fadeIn 0.3s forwards;';
+        
         const box = document.createElement('div');
         box.className = 'custom-alert-box';
-        let icon = type === 'success' ? '<i class="fa-solid fa-circle-check" style="color: #2ecc71; font-size: 3rem; margin-bottom: 15px;"></i>' : '<i class="fa-solid fa-circle-xmark" style="color: #e74c3c; font-size: 3rem; margin-bottom: 15px;"></i>';
-        box.innerHTML = `${icon}<p style="margin-bottom:20px; font-size:1.1rem;">${message}</p>`;
-        const btn = document.createElement('button');
-        btn.className = 'btn'; btn.style.width = '100%'; btn.innerText = 'OK';
-        btn.onclick = () => { overlay.remove(); if (callback) callback(); };
-        box.appendChild(btn); overlay.appendChild(box); document.body.appendChild(overlay);
+        box.style.cssText = 'background: var(--bg-light); color: var(--text-light); padding: 30px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border: 1px solid var(--primary-color); position: relative; transform: scale(0.9); animation: scaleUp 0.3s forwards ease-out;';
+        
+        let iconHtml = '';
+        let showClose = true;
+        
+        if (type === 'success') {
+            iconHtml = '<i class="fa-solid fa-circle-check" style="color: #2ecc71; font-size: 3.5rem; margin-bottom: 15px;"></i>';
+        } else if (type === 'error') {
+            iconHtml = '<i class="fa-solid fa-circle-xmark" style="color: #e74c3c; font-size: 3.5rem; margin-bottom: 15px;"></i>';
+        } else if (type === 'info') {
+            iconHtml = '<i class="fa-solid fa-circle-info" style="color: var(--primary-color); font-size: 3.5rem; margin-bottom: 15px;"></i>';
+        } else if (type === 'processing') {
+            iconHtml = '<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--primary-color); font-size: 3.5rem; margin-bottom: 15px;"></i>';
+            showClose = false; // Hide close button during processing
+        }
+
+        let closeBtnHtml = showClose ? '<button class="close-alert-btn" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-light); transition:0.2s;">&times;</button>' : '';
+
+        box.innerHTML = `
+            ${closeBtnHtml}
+            ${iconHtml}
+            <p style="margin-bottom: 20px; font-size: 1.1rem; font-weight: 500;">${message}</p>
+        `;
+        
+        if (type !== 'processing') {
+            const btn = document.createElement('button');
+            btn.className = 'btn'; 
+            btn.style.width = '100%'; 
+            btn.innerText = 'OK';
+            btn.onclick = () => { overlay.remove(); if (callback) callback(); };
+            box.appendChild(btn);
+        }
+
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        if (showClose) {
+            box.querySelector('.close-alert-btn').onclick = () => { 
+                overlay.remove(); 
+                if (callback) callback(); 
+            };
+        }
     }
 
-    // TELEGRAM WIDGET
+    if (!document.getElementById('customAlertKeyframes')) {
+        const style = document.createElement('style');
+        style.id = 'customAlertKeyframes';
+        style.innerHTML = `
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+            .close-alert-btn:hover { color: var(--primary-color) !important; }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /* ==========================================
+       2. THEME SETUP (Default Black Theme)
+       ========================================== */
+    const themeToggle = document.querySelector('.theme-toggle');
+    let currentTheme = localStorage.getItem('theme');
+    
+    if (!currentTheme) {
+        currentTheme = 'dark';
+        localStorage.setItem('theme', 'dark');
+    }
+    
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        if (themeToggle) themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    } else {
+        if (themeToggle) themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        });
+    }
+
+    /* ==========================================
+       3. TELEGRAM WIDGET
+       ========================================== */
     const telegramWidget = document.createElement('a');
     telegramWidget.href = "https://t.me/UrjiiSupport";
     telegramWidget.target = "_blank";
@@ -21,27 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
     telegramWidget.innerHTML = `<i class="fa-brands fa-telegram"></i> <span>Telegram Support</span>`;
     document.body.appendChild(telegramWidget);
 
-    // THEME & NAV
-    const themeToggle = document.querySelector('.theme-toggle');
-    if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); if(themeToggle) themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>'; }
-    if(themeToggle) themeToggle.addEventListener('click', () => { 
-        document.body.classList.toggle('dark-mode'); 
-        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); 
-        themeToggle.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>'; 
-    });
-
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    if(hamburger) hamburger.addEventListener('click', () => { navLinks.classList.toggle('active'); hamburger.classList.toggle('fa-bars'); hamburger.classList.toggle('fa-times'); });
-
-    const hiddenElements = document.querySelectorAll('.hidden');
-    const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }); }, { threshold: 0.1 });
-    hiddenElements.forEach(el => observer.observe(el));
-
-    // DYNAMIC HEADER AUTH
+    /* ==========================================
+       4. AUTHENTICATION & SECURE ROUTES
+       ========================================== */
     const authHeaderActions = document.getElementById('authHeaderActions');
     const isLoggedIn = localStorage.getItem('urjii_is_logged_in') === 'true';
     const savedUser = JSON.parse(localStorage.getItem('urjii_user'));
+
     if (authHeaderActions) {
         if (isLoggedIn && savedUser) {
             authHeaderActions.innerHTML = `<a href="profile.html" class="btn" style="background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);"><i class="fa-solid fa-user-circle"></i> Profile</a>`;
@@ -50,7 +134,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // INTERNATIONAL DATA
+    document.querySelectorAll('a[href="order.html"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (!isLoggedIn) {
+                e.preventDefault();
+                showCustomAlert("To order, please sign in first.", "info", () => {
+                    window.location.href = "Auth.html";
+                });
+            }
+        });
+    });
+
+    if (window.location.pathname.includes('order.html')) {
+        if (!isLoggedIn) {
+            document.body.style.display = 'none';
+            window.location.href = "Auth.html";
+        }
+    }
+
+    /* ==========================================
+       5. INTERNATIONAL DATA & FORMS
+       ========================================== */
     const countriesData = [
         { name: "Ethiopia", code: "+251", flag: "🇪🇹", min: 9, max: 9 }, { name: "Kenya", code: "+254", flag: "🇰🇪", min: 9, max: 10 },
         { name: "Uganda", code: "+256", flag: "🇺🇬", min: 9, max: 9 }, { name: "Tanzania", code: "+255", flag: "🇹🇿", min: 9, max: 9 },
@@ -103,15 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     populateCountrySelects();
 
-    // AUTH FORMS
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const showRegBtn = document.getElementById('showRegisterBtn');
-    const showLoginBtn = document.getElementById('showLoginBtn');
-
-    if(showRegBtn) showRegBtn.addEventListener('click', () => { loginForm.style.display='none'; registerForm.style.display='block'; showRegBtn.style.background='var(--primary-color)'; showRegBtn.style.color='#fff'; showLoginBtn.style.background='transparent'; showLoginBtn.style.color='var(--text-light)'; });
-    if(showLoginBtn) showLoginBtn.addEventListener('click', () => { registerForm.style.display='none'; loginForm.style.display='block'; showLoginBtn.style.background='var(--primary-color)'; showLoginBtn.style.color='#fff'; showRegBtn.style.background='transparent'; showRegBtn.style.color='var(--text-light)'; });
-
     document.querySelectorAll('.toggle-password').forEach(icon => {
         icon.addEventListener('click', function() {
             const input = this.previousElementSibling;
@@ -120,88 +215,243 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    if(registerForm) {
+    /* ==========================================
+       6. AUTHENTICATION FORMS PROCESSING
+       ========================================== */
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const showRegBtn = document.getElementById('showRegisterBtn');
+    const showLoginBtn = document.getElementById('showLoginBtn');
+
+    if (showRegBtn) showRegBtn.addEventListener('click', () => { loginForm.style.display='none'; registerForm.style.display='block'; showRegBtn.style.background='var(--primary-color)'; showRegBtn.style.color='#fff'; showLoginBtn.style.background='transparent'; showLoginBtn.style.color='var(--text-light)'; });
+    if (showLoginBtn) showLoginBtn.addEventListener('click', () => { registerForm.style.display='none'; loginForm.style.display='block'; showLoginBtn.style.background='var(--primary-color)'; showLoginBtn.style.color='#fff'; showRegBtn.style.background='transparent'; showRegBtn.style.color='var(--text-light)'; });
+
+    if (registerForm) {
         registerForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const pass = document.getElementById('regPassword').value;
             const confirmPass = document.getElementById('regConfirmPassword').value;
-            if(pass !== confirmPass) { showCustomAlert("Passwords do not match!", "error"); return; }
-            if(!document.getElementById('termsAgree').checked) { showCustomAlert("You must agree to the terms.", "error"); return; }
+            if (pass !== confirmPass) { showCustomAlert("Passwords do not match!", "error"); return; }
+            if (!document.getElementById('termsAgree').checked) { showCustomAlert("You must agree to the terms.", "error"); return; }
 
             const phoneSelect = document.getElementById('regPhoneCode');
             const phoneInput = document.getElementById('regPhoneNum').value;
             const selectedOpt = phoneSelect.options[phoneSelect.selectedIndex];
             
-            if(phoneInput.length < selectedOpt.dataset.min || phoneInput.length > selectedOpt.dataset.max) {
+            if (phoneInput.length < selectedOpt.dataset.min || phoneInput.length > selectedOpt.dataset.max) {
                 showCustomAlert(`Phone length for ${selectedOpt.value} must be ${selectedOpt.dataset.min}-${selectedOpt.dataset.max} digits.`, "error"); return;
             }
 
             const user = {
-                firstName: document.getElementById('regFirstName').value, lastName: document.getElementById('regLastName').value,
-                email: document.getElementById('regEmail').value, fullPhone: selectedOpt.value + phoneInput, password: pass
+                firstName: document.getElementById('regFirstName').value, 
+                lastName: document.getElementById('regLastName').value,
+                email: document.getElementById('regEmail').value, 
+                fullPhone: selectedOpt.value + phoneInput, 
+                password: pass
             };
-            localStorage.setItem('urjii_user', JSON.stringify(user));
-            showCustomAlert("Registered successfully! You can now log in.", "success", () => showLoginBtn.click());
+            
+            showCustomAlert("Processing registration...", "processing");
+            setTimeout(() => {
+                localStorage.setItem('urjii_user', JSON.stringify(user));
+                showCustomAlert("Registered successfully! You can now log in.", "success", () => showLoginBtn.click());
+            }, 1500);
         });
     }
 
-    if(loginForm) {
+    if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const id = document.getElementById('loginIdentifier').value.trim();
             const pass = document.getElementById('loginPassword').value;
             
-            if(savedUser && (id === savedUser.email || id === savedUser.fullPhone || id === savedUser.fullPhone.replace('+','')) && pass === savedUser.password) {
-                localStorage.setItem('urjii_is_logged_in', 'true');
-                window.location.href = "profile.html";
-            } else { document.getElementById('loginError').style.display = 'block'; }
+            showCustomAlert("Authenticating...", "processing");
+
+            setTimeout(() => {
+                if (savedUser && (id === savedUser.email || id === savedUser.fullPhone || id === savedUser.fullPhone.replace('+','')) && pass === savedUser.password) {
+                    localStorage.setItem('urjii_is_logged_in', 'true');
+                    window.location.href = "profile.html";
+                } else { 
+                    showCustomAlert("Invalid credentials. Please try again.", "error");
+                    document.getElementById('loginError').style.display = 'block'; 
+                }
+            }, 1000);
         });
     }
 
-    // ORDER FORM VALIDATION
+    /* ==========================================
+       7. ORDER FORM VALIDATION
+       ========================================== */
     const orderForm = document.getElementById('orderForm');
-    if(orderForm) {
+    if (orderForm) {
         orderForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const phoneSelect = document.getElementById('orderPhoneCode');
             const phoneInput = document.getElementById('orderPhoneNum').value;
             const selectedOpt = phoneSelect.options[phoneSelect.selectedIndex];
-            if(phoneInput.length < selectedOpt.dataset.min || phoneInput.length > selectedOpt.dataset.max) {
+            
+            if (phoneInput.length < selectedOpt.dataset.min || phoneInput.length > selectedOpt.dataset.max) {
                 document.getElementById('phoneError').innerText = `Require ${selectedOpt.dataset.min}-${selectedOpt.dataset.max} digits.`;
                 document.getElementById('phoneError').style.display = 'block'; return;
             }
             document.getElementById('phoneError').style.display = 'none';
-            const btn = document.getElementById('orderSubmitBtn'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...'; btn.disabled = true;
-            setTimeout(() => { showCustomAlert('Order submitted successfully!', 'success', () => window.location.href="profile.html"); }, 1500);
+            
+            showCustomAlert('Processing your order...', 'processing');
+            
+            setTimeout(() => { 
+                showCustomAlert('Order submitted successfully! We will contact you soon.', 'success', () => window.location.href="profile.html"); 
+            }, 2000);
         });
     }
 
-    // PROFILE DASHBOARD & SKELETON
-    if(window.location.pathname.includes('profile.html')) {
-        if(!isLoggedIn) { window.location.href="Auth.html"; return; }
-        document.getElementById('displayUserName').innerText = `${savedUser.firstName} ${savedUser.lastName}`;
-        const ordersContainer = document.getElementById('ordersContainer');
-        // Inject Skeleton
-        ordersContainer.innerHTML = `
-            <div class="skeleton-box skeleton"></div>
-            <div class="skeleton-box skeleton"></div>
-        `;
-        setTimeout(() => {
-            ordersContainer.innerHTML = `
-                <div class="card" style="border-left: 4px solid var(--primary-color); text-align:left; padding:20px; margin-bottom:15px;">
-                    <div style="display:flex; justify-content: space-between; align-items: center;">
-                        <div><span style="font-size: 0.8rem; color: #888;">ORD-1029</span><h4 style="margin-top: 5px;">E-Commerce Platform</h4></div>
-                        <span style="background: rgba(201, 160, 99, 0.2); color: var(--primary-color); padding: 4px 10px; border-radius: 4px; font-size:0.8rem; font-weight: 500;">In Development</span>
-                    </div>
-                </div>`;
-        }, 2000);
+    /* ==========================================
+       8. PROFILE & AFFILIATE DASHBOARD LOGIC
+       ========================================== */
+    if (window.location.pathname.includes('profile.html')) {
+        
+        if(document.getElementById('displayUserName') && savedUser) {
+            document.getElementById('displayUserName').innerText = `${savedUser.firstName} ${savedUser.lastName}`;
+        }
+        
+        const tabLinks = document.querySelectorAll('.profile-sidebar a[data-tab]');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        tabLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const targetId = e.target.getAttribute('data-tab');
+                if(!targetId) return;
+                tabLinks.forEach(t => t.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
 
-        document.getElementById('sidebarLogoutBtn').addEventListener('click', () => { localStorage.removeItem('urjii_is_logged_in'); window.location.href="index.html"; });
+        const ordersContainer = document.getElementById('ordersContainer');
+        if (ordersContainer) {
+            ordersContainer.innerHTML = `
+                <div class="skeleton-box skeleton"></div>
+                <div class="skeleton-box skeleton"></div>
+            `;
+            setTimeout(() => {
+                ordersContainer.innerHTML = `
+                    <div class="card" style="border-left: 4px solid var(--primary-color); text-align:left; padding:20px; margin-bottom:15px;">
+                        <div style="display:flex; justify-content: space-between; align-items: center;">
+                            <div><span style="font-size: 0.8rem; color: #888;">ORD-1029</span><h4 style="margin-top: 5px;">E-Commerce Platform</h4></div>
+                            <span style="background: rgba(201, 160, 99, 0.2); color: var(--primary-color); padding: 4px 10px; border-radius: 4px; font-size:0.8rem; font-weight: 500;">In Development</span>
+                        </div>
+                    </div>`;
+            }, 2000);
+        }
+
+        const promoView = document.getElementById('affiliatePromoView');
+        const dashboardView = document.getElementById('affiliateDashboardView');
+
+        if (promoView && dashboardView) {
+            let isAffiliate = localStorage.getItem('urjii_is_affiliate') === 'true';
+
+            function renderAffiliateUI() {
+                if (isAffiliate) {
+                    promoView.style.display = 'none';
+                    dashboardView.style.display = 'block';
+                    
+                    const userNameStr = savedUser && savedUser.firstName ? savedUser.firstName.toUpperCase() : 'USER';
+                    const uniqueId = Math.floor(1000 + Math.random() * 9000); 
+                    let storedRefLink = localStorage.getItem('urjii_ref_link');
+                    if (!storedRefLink) {
+                        storedRefLink = `https://urjiisoftware.com/ref/${userNameStr}${uniqueId}`;
+                        localStorage.setItem('urjii_ref_link', storedRefLink);
+                    }
+                    if (document.getElementById('refLinkInput')) {
+                        document.getElementById('refLinkInput').value = storedRefLink;
+                    }
+                } else {
+                    promoView.style.display = 'block';
+                    dashboardView.style.display = 'none';
+                    
+                    promoView.innerHTML = `
+                        <i class="fa-solid fa-handshake-angle" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+                        <h4 style="margin-bottom: 10px; font-size: 1.2rem;">Join Affiliate Program</h4>
+                        <p style="margin-bottom: 25px; color: #888;">Register to get your unique referral link and earn 10% commissions.</p>
+                        <form id="affiliateRegForm" style="max-width:400px; margin:0 auto; text-align:left;">
+                            <div class="form-group"><label>Full Name *</label><input type="text" id="affName" class="form-control" required value="${savedUser ? savedUser.firstName + ' ' + savedUser.lastName : ''}"></div>
+                            <div class="form-group"><label>Email Address *</label><input type="email" id="affEmail" class="form-control" required value="${savedUser ? savedUser.email : ''}"></div>
+                            <div class="form-group"><label>Phone Number *</label><input type="text" id="affPhone" class="form-control" required value="${savedUser ? savedUser.fullPhone : ''}"></div>
+                            <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-check"></i> Complete Registration</button>
+                        </form>
+                    `;
+
+                    document.getElementById('affiliateRegForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        showCustomAlert("Processing your affiliate registration...", "processing");
+                        
+                        setTimeout(() => {
+                            localStorage.setItem('urjii_is_affiliate', 'true');
+                            isAffiliate = true;
+                            showCustomAlert("Welcome to the Affiliate Program! Your dashboard is ready.", "success", () => {
+                                renderAffiliateUI();
+                            });
+                        }, 1500);
+                    });
+                }
+            }
+
+            renderAffiliateUI();
+            
+            const copyBtn = document.getElementById('copyRefBtn');
+            if(copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    document.getElementById('refLinkInput').select();
+                    document.execCommand("copy");
+                    showCustomAlert("Referral Link Copied successfully!", "success");
+                });
+            }
+        }
+
+        document.getElementById('profileForm')?.addEventListener('submit', (e) => { e.preventDefault(); showCustomAlert("Processing update...", "processing"); setTimeout(() => showCustomAlert("Profile Updated Successfully!", "success"), 1000); });
+        document.getElementById('passwordForm')?.addEventListener('submit', (e) => { e.preventDefault(); showCustomAlert("Updating security...", "processing"); setTimeout(() => { showCustomAlert("Password Updated Successfully!", "success"); e.target.reset(); }, 1000); });
+        document.getElementById('settingsForm')?.addEventListener('submit', (e) => { e.preventDefault(); showCustomAlert("Saving settings...", "processing"); setTimeout(() => showCustomAlert("Settings Saved Successfully!", "success"), 1000); });
+
+        if(document.getElementById('sidebarLogoutBtn')) {
+            document.getElementById('sidebarLogoutBtn').addEventListener('click', () => { 
+                showCustomAlert("Logging out...", "processing");
+                setTimeout(() => {
+                    localStorage.removeItem('urjii_is_logged_in'); 
+                    window.location.href="index.html"; 
+                }, 1000);
+            });
+        }
     }
 
-    // REVIEW SYSTEM
+    /* ==========================================
+       9. CONTACT & NEWSLETTER FORMS
+       ========================================== */
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showCustomAlert("Sending your message...", "processing");
+            setTimeout(() => {
+                contactForm.reset();
+                showCustomAlert("Your message has been sent successfully. We will get back to you soon!", "success");
+            }, 1500);
+        });
+    }
+
+    const newsletterForms = document.querySelectorAll('.newsletter-form');
+    newsletterForms.forEach(form => {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showCustomAlert("Processing subscription...", "processing");
+            setTimeout(() => {
+                form.reset();
+                showCustomAlert("Thank you for subscribing to our newsletter!", "success");
+            }, 1200);
+        });
+    });
+
+    /* ==========================================
+       10. FEEDBACK & REVIEW SYSTEM
+       ========================================== */
     const reviewForm = document.getElementById('reviewForm');
-    const reviewsContainer = document.getElementById('reviewsContainer');
     let currentRating = 5;
 
     document.querySelectorAll('.star-rating i').forEach(star => {
@@ -212,38 +462,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    function loadReviews() {
-        if(!reviewsContainer) return;
-        const reviews = JSON.parse(localStorage.getItem('urjii_reviews')) || [
-            { name: "Tech Corp Addis", rating: 5, text: "Urjii completely transformed our digital workflow. Their attention to detail is unmatched." },
-            { name: "Delivery Solutions", rating: 5, text: "The app they built for us has over 10k downloads. Fast, reliable, and user-friendly." }
-        ];
-        reviewsContainer.innerHTML = '';
-        reviews.forEach(r => {
-            let stars = Array(parseInt(r.rating)).fill('<i class="fa-solid fa-star"></i>').join('');
-            reviewsContainer.innerHTML += `
-                <div class="card review-card">
-                    <div class="stars">${stars}</div>
-                    <p style="margin: 15px 0;">"${r.text}"</p>
-                    <h4 style="color: var(--primary-color);">- ${r.name}</h4>
-                </div>`;
-        });
-    }
-    loadReviews();
-
-    if(reviewForm) {
+    if (reviewForm) {
         reviewForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const reviews = JSON.parse(localStorage.getItem('urjii_reviews')) || [];
-            reviews.unshift({ name: document.getElementById('revName').value, text: document.getElementById('revText').value, rating: currentRating });
+            reviews.unshift({ 
+                name: document.getElementById('revName').value, 
+                text: document.getElementById('revText').value, 
+                rating: currentRating 
+            });
             localStorage.setItem('urjii_reviews', JSON.stringify(reviews));
-            reviewForm.reset(); loadReviews(); showCustomAlert("Review submitted successfully!", "success");
+            
+            showCustomAlert("Submitting your review...", "processing");
+            setTimeout(() => {
+                reviewForm.reset(); 
+                showCustomAlert("Thank you! Review submitted successfully.", "success");
+            }, 1200);
         });
     }
 
-    // BLOG SEARCH
+    /* ==========================================
+       11. BLOG SEARCH & OTHERS
+       ========================================== */
     const blogSearch = document.getElementById('blogSearch');
-    if(blogSearch) {
+    if (blogSearch) {
         blogSearch.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             document.querySelectorAll('.blog-card').forEach(card => {
@@ -251,60 +493,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-    
-    
-     // Setup Profile Tabs Logic
-            const tabLinks = document.querySelectorAll('.profile-sidebar a[data-tab]');
-            const tabPanes = document.querySelectorAll('.tab-pane');
-            
-            tabLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    const targetId = e.target.getAttribute('data-tab');
-                    if(!targetId) return;
-                    
-                    // Remove active from all tabs
-                    tabLinks.forEach(t => t.classList.remove('active'));
-                    tabPanes.forEach(p => p.classList.remove('active'));
-                    
-                    // Add active to clicked tab
-                    e.target.classList.add('active');
-                    document.getElementById(targetId).classList.add('active');
-                });
-            });
 
-            // Affiliate Copy Link Logic
-            const copyBtn = document.getElementById('copyRefBtn');
-            if(copyBtn) {
-                copyBtn.addEventListener('click', () => {
-                    const refInput = document.getElementById('refLinkInput');
-                    refInput.select();
-                    document.execCommand("copy");
-                    
-                    // Temporary toast style alert (requires global script alert function)
-                    if(typeof showCustomAlert === "function") {
-                        showCustomAlert("Referral Link Copied!", "success");
-                    } else {
-                        alert("Referral Link Copied!");
-                    }
-                });
-            }
-
-            // Forms Submit mock actions
-            document.getElementById('profileForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert("Profile Updated Successfully!");
-            });
-            document.getElementById('passwordForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert("Password Updated Successfully!");
-                e.target.reset();
-            });
-            document.getElementById('settingsForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert("Settings Saved!");
-            });
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    if(hamburger) hamburger.addEventListener('click', () => { navLinks.classList.toggle('active'); hamburger.classList.toggle('fa-bars'); hamburger.classList.toggle('fa-times'); });
     
+    const hiddenElements = document.querySelectorAll('.hidden');
+    const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }); }, { threshold: 0.1 });
+    hiddenElements.forEach(el => observer.observe(el));
 });
 
-        
-           
+
+
