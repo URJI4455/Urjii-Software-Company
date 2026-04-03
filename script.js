@@ -1,17 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-
     // Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      }, err => {
-        console.log('ServiceWorker registration failed: ', err);
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
       });
-  });
-}
+    }
     
     /* ==========================================
        1. GLOBAL UI UTILITIES (Custom Alerts)
@@ -216,7 +215,7 @@ if ('serviceWorker' in navigator) {
     });
 
     /* ==========================================
-       6. AUTHENTICATION FORMS PROCESSING
+       6. AUTHENTICATION FORMS PROCESSING (BACKEND CONNECTED)
        ========================================== */
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
@@ -226,8 +225,9 @@ if ('serviceWorker' in navigator) {
     if (showRegBtn) showRegBtn.addEventListener('click', () => { loginForm.style.display='none'; registerForm.style.display='block'; showRegBtn.style.background='var(--primary-color)'; showRegBtn.style.color='#fff'; showLoginBtn.style.background='transparent'; showLoginBtn.style.color='var(--text-light)'; });
     if (showLoginBtn) showLoginBtn.addEventListener('click', () => { registerForm.style.display='none'; loginForm.style.display='block'; showLoginBtn.style.background='var(--primary-color)'; showLoginBtn.style.color='#fff'; showRegBtn.style.background='transparent'; showRegBtn.style.color='var(--text-light)'; });
 
+    // --- REGISTRATION ---
     if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
+        registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const pass = document.getElementById('regPassword').value;
             const confirmPass = document.getElementById('regConfirmPassword').value;
@@ -242,48 +242,103 @@ if ('serviceWorker' in navigator) {
                 showCustomAlert(`Phone length for ${selectedOpt.value} must be ${selectedOpt.dataset.min}-${selectedOpt.dataset.max} digits.`, "error"); return;
             }
 
-            const user = {
+            const userData = {
                 firstName: document.getElementById('regFirstName').value, 
                 lastName: document.getElementById('regLastName').value,
                 email: document.getElementById('regEmail').value, 
-                fullPhone: selectedOpt.value + phoneInput, 
-                password: pass
+                phone: selectedOpt.value + phoneInput, 
+                password: pass,
+                gender: document.getElementById('regGender').value,
+                age: document.getElementById('regAge').value,
+                country: document.getElementById('regCountry').value
             };
             
             showCustomAlert("Processing registration...", "processing");
-            setTimeout(() => {
-                localStorage.setItem('urjii_user', JSON.stringify(user));
-                showCustomAlert("Registered successfully! You can now log in.", "success", () => showLoginBtn.click());
-            }, 1500);
+
+            try {
+                // Sent to Vercel API
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showCustomAlert("Registered successfully! You can now log in.", "success", () => showLoginBtn.click());
+                    registerForm.reset();
+                } else {
+                    showCustomAlert(data.error || "Registration failed.", "error");
+                }
+            } catch (error) {
+                showCustomAlert("Network error. Please try again.", "error");
+            }
         });
     }
 
+    // --- LOGIN ---
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('loginIdentifier').value.trim();
             const pass = document.getElementById('loginPassword').value;
             
             showCustomAlert("Authenticating...", "processing");
 
-            setTimeout(() => {
-                if (savedUser && (id === savedUser.email || id === savedUser.fullPhone || id === savedUser.fullPhone.replace('+','')) && pass === savedUser.password) {
+            try {
+                // Sent to Vercel API
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: id, password: pass })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
                     localStorage.setItem('urjii_is_logged_in', 'true');
+                    localStorage.setItem('urjii_user', JSON.stringify({
+                        token: data.token,
+                        firstName: data.user?.firstName || "User",
+                        lastName: data.user?.lastName || "",
+                        email: data.user?.email || id,
+                        fullPhone: data.user?.phone || ""
+                    }));
+                    
+                    // Close alert and redirect
+                    const existing = document.querySelector('.custom-alert-overlay');
+                    if(existing) existing.remove();
                     window.location.href = "profile.html";
                 } else { 
-                    showCustomAlert("Invalid credentials. Please try again.", "error");
+                    showCustomAlert(data.error || "Invalid credentials. Please try again.", "error");
                     document.getElementById('loginError').style.display = 'block'; 
                 }
-            }, 1000);
+            } catch (error) {
+                showCustomAlert("Server connection failed.", "error");
+            }
         });
     }
 
     /* ==========================================
-       7. ORDER FORM VALIDATION
+       7. ORDER FORM VALIDATION (BACKEND CONNECTED)
        ========================================== */
     const orderForm = document.getElementById('orderForm');
+    const projectFiles = document.getElementById('projectFiles');
+    const fileListDisplay = document.getElementById('fileListDisplay');
+
+    // Show files UI
+    if (projectFiles && fileListDisplay) {
+        projectFiles.addEventListener('change', function() {
+            fileListDisplay.innerHTML = '';
+            Array.from(this.files).forEach(file => {
+                fileListDisplay.innerHTML += `<div style="font-size:0.85rem; padding:5px; background:rgba(201,160,99,0.1); margin-top:5px; border-radius:4px;"><i class="fa-solid fa-file"></i> ${file.name}</div>`;
+            });
+        });
+    }
+
     if (orderForm) {
-        orderForm.addEventListener('submit', (e) => {
+        orderForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const phoneSelect = document.getElementById('orderPhoneCode');
             const phoneInput = document.getElementById('orderPhoneNum').value;
@@ -295,11 +350,43 @@ if ('serviceWorker' in navigator) {
             }
             document.getElementById('phoneError').style.display = 'none';
             
+            // Using FormData to support file uploads to backend
+            const formData = new FormData();
+            const selects = orderForm.querySelectorAll('select');
+            const inputs = orderForm.querySelectorAll('input[type="text"], input[type="email"], input[type="number"]');
+            const textarea = orderForm.querySelector('textarea');
+            
+            if(selects[0]) formData.append('serviceType', selects[0].value);
+            if(inputs[0]) formData.append('fullName', inputs[0].value);
+            if(inputs[1]) formData.append('email', inputs[1].value);
+            formData.append('phone', selectedOpt.value + phoneInput);
+            if(textarea) formData.append('description', textarea.value);
+            
+            if (projectFiles && projectFiles.files.length > 0) {
+                for (let i = 0; i < projectFiles.files.length; i++) {
+                    formData.append('files', projectFiles.files[i]);
+                }
+            }
+            
             showCustomAlert('Processing your order...', 'processing');
             
-            setTimeout(() => { 
-                showCustomAlert('Order submitted successfully! We will contact you soon.', 'success', () => window.location.href="profile.html"); 
-            }, 2000);
+            try {
+                // Sent to Vercel API
+                const response = await fetch('/api/order', {
+                    method: 'POST',
+                    body: formData // Note: no headers needed for FormData
+                });
+
+                if (response.ok) {
+                    showCustomAlert('Order submitted successfully! We will contact you soon.', 'success', () => window.location.href="profile.html"); 
+                    orderForm.reset();
+                    if(fileListDisplay) fileListDisplay.innerHTML = '';
+                } else {
+                    showCustomAlert("Failed to submit order.", "error");
+                }
+            } catch (error) {
+                showCustomAlert("Network error. Please try again later.", "error");
+            }
         });
     }
 
@@ -372,7 +459,7 @@ if ('serviceWorker' in navigator) {
                         <h4 style="margin-bottom: 10px; font-size: 1.2rem;">Join Affiliate Program</h4>
                         <p style="margin-bottom: 25px; color: #888;">Register to get your unique referral link and earn 10% commissions.</p>
                         <form id="affiliateRegForm" style="max-width:400px; margin:0 auto; text-align:left;">
-                            <div class="form-group"><label>Full Name *</label><input type="text" id="affName" class="form-control" required value="${savedUser ? savedUser.firstName + ' ' + savedUser.lastName : ''}"></div>
+                            <div class="form-group"><label>Full Name *</label><input type="text" id="affName" class="form-control" required value="${savedUser && savedUser.firstName ? savedUser.firstName + ' ' + (savedUser.lastName||'') : ''}"></div>
                             <div class="form-group"><label>Email Address *</label><input type="email" id="affEmail" class="form-control" required value="${savedUser ? savedUser.email : ''}"></div>
                             <div class="form-group"><label>Phone Number *</label><input type="text" id="affPhone" class="form-control" required value="${savedUser ? savedUser.fullPhone : ''}"></div>
                             <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-check"></i> Complete Registration</button>
@@ -415,6 +502,7 @@ if ('serviceWorker' in navigator) {
                 showCustomAlert("Logging out...", "processing");
                 setTimeout(() => {
                     localStorage.removeItem('urjii_is_logged_in'); 
+                    localStorage.removeItem('urjii_user');
                     window.location.href="index.html"; 
                 }, 1000);
             });
@@ -426,13 +514,34 @@ if ('serviceWorker' in navigator) {
        ========================================== */
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                subject: document.getElementById('contactSubject').value,
+                message: document.getElementById('contactMessage').value
+            };
+
             showCustomAlert("Sending your message...", "processing");
-            setTimeout(() => {
-                contactForm.reset();
-                showCustomAlert("Your message has been sent successfully. We will get back to you soon!", "success");
-            }, 1500);
+            
+            try {
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showCustomAlert("Your message has been sent successfully. We will get back to you soon!", "success");
+                    contactForm.reset();
+                } else {
+                    showCustomAlert("Failed to send message.", "error");
+                }
+            } catch (error) {
+                showCustomAlert("Network error. Please try again later.", "error");
+            }
         });
     }
 
@@ -458,26 +567,39 @@ if ('serviceWorker' in navigator) {
         star.addEventListener('click', (e) => {
             currentRating = e.target.getAttribute('data-val');
             document.querySelectorAll('.star-rating i').forEach(s => s.classList.remove('active'));
-            e.target.classList.add('active');
+            // Highlight up to selected star
+            for(let i=0; i < currentRating; i++){
+                document.querySelectorAll('.star-rating i')[i].classList.add('active');
+            }
         });
     });
 
     if (reviewForm) {
-        reviewForm.addEventListener('submit', (e) => {
+        reviewForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const reviews = JSON.parse(localStorage.getItem('urjii_reviews')) || [];
-            reviews.unshift({ 
-                name: document.getElementById('revName').value, 
-                text: document.getElementById('revText').value, 
-                rating: currentRating 
-            });
-            localStorage.setItem('urjii_reviews', JSON.stringify(reviews));
+            const revName = document.getElementById('revName').value;
+            const revText = document.getElementById('revText').value;
             
             showCustomAlert("Submitting your review...", "processing");
-            setTimeout(() => {
+
+            try {
+                // Send to backend
+                await fetch('/api/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: revName, rating: currentRating, review: revText })
+                });
+
+                // Also save to localStorage for local display caching
+                const reviews = JSON.parse(localStorage.getItem('urjii_reviews')) || [];
+                reviews.unshift({ name: revName, text: revText, rating: currentRating });
+                localStorage.setItem('urjii_reviews', JSON.stringify(reviews));
+
                 reviewForm.reset(); 
                 showCustomAlert("Thank you! Review submitted successfully.", "success");
-            }, 1200);
+            } catch (error) {
+                showCustomAlert("Couldn't submit review right now.", "error");
+            }
         });
     }
 
@@ -502,6 +624,5 @@ if ('serviceWorker' in navigator) {
     const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }); }, { threshold: 0.1 });
     hiddenElements.forEach(el => observer.observe(el));
 });
-
 
 
