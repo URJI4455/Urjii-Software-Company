@@ -2,14 +2,14 @@
   "name": "Urjii Software Company",
   "short_name": "Urjii Soft",
   "description": "Innovative Web, App, and System Development tailored for your business needs.",
-  "start_url": "index.html",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#C9A063",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "images/icon-192x192.png",
+      "src": "logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
