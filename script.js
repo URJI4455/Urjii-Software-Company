@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const API_URL = 'https://urjii-software-company.vercel.app/api';
 
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
@@ -11,7 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
           });
       });
     }
-    
+
+    // Track Affiliate Links on any page load
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('ref')) {
+        localStorage.setItem('urjii_referred_by', urlParams.get('ref'));
+        fetch(`${API_URL}/ref/${urlParams.get('ref')}`).catch(e => console.log(e));
+    }
+
     /* ==========================================
        1. GLOBAL UI UTILITIES (Custom Alerts)
        ========================================== */
@@ -81,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ==========================================
-       2. THEME SETUP
+       2. THEME SETUP (Black Base Default)
        ========================================== */
     const themeToggle = document.querySelector('.theme-toggle');
     let currentTheme = localStorage.getItem('theme');
@@ -121,33 +129,31 @@ document.addEventListener('DOMContentLoaded', () => {
        4. AUTHENTICATION & SECURE ROUTES
        ========================================== */
     const authHeaderActions = document.getElementById('authHeaderActions');
-    const isLoggedIn = localStorage.getItem('urjii_is_logged_in') === 'true';
-    const savedUser = JSON.parse(localStorage.getItem('urjii_user'));
-    const token = savedUser ? savedUser.token : null;
+    const token = localStorage.getItem('urjii_token');
 
     if (authHeaderActions) {
-        if (isLoggedIn && savedUser) {
-            authHeaderActions.innerHTML = `<a href="profile.html" class="btn" style="background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);"><i class="fa-solid fa-user-circle"></i> Profile</a>`;
+        if (token) {
+            authHeaderActions.innerHTML = `<a href="/profile" class="btn" style="background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);"><i class="fa-solid fa-user-circle"></i> Profile</a>`;
         } else {
-            authHeaderActions.innerHTML = `<a href="Auth.html" class="btn" style="background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);">Login</a>`;
+            authHeaderActions.innerHTML = `<a href="/Auth" class="btn" style="background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);">Login</a>`;
         }
     }
 
-    document.querySelectorAll('a[href="order.html"]').forEach(link => {
+    document.querySelectorAll('a[href="/order"]').forEach(link => {
         link.addEventListener('click', (e) => {
-            if (!isLoggedIn) {
+            if (!token) {
                 e.preventDefault();
                 showCustomAlert("To order, please sign in first.", "info", () => {
-                    window.location.href = "Auth.html";
+                    window.location.href = "/Auth";
                 });
             }
         });
     });
 
-    if (window.location.pathname.includes('order.html') || window.location.pathname.includes('profile.html')) {
-        if (!isLoggedIn) {
+    if (window.location.pathname.includes('/order') || window.location.pathname.includes('/profile')) {
+        if (!token) {
             document.body.style.display = 'none';
-            window.location.href = "Auth.html";
+            window.location.href = "/Auth";
         }
     }
 
@@ -157,9 +163,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const countriesData =[
         { name: "Ethiopia", code: "+251", flag: "🇪🇹", min: 9, max: 9 }, { name: "Kenya", code: "+254", flag: "🇰🇪", min: 9, max: 10 },
         { name: "Uganda", code: "+256", flag: "🇺🇬", min: 9, max: 9 }, { name: "Tanzania", code: "+255", flag: "🇹🇿", min: 9, max: 9 },
-        { name: "USA", code: "+1", flag: "🇺🇸", min: 10, max: 10 }, { name: "UK", code: "+44", flag: "🇬🇧", min: 10, max: 10 },
-        { name: "UAE", code: "+971", flag: "🇦🇪", min: 9, max: 9 }
-    ]; 
+        { name: "Rwanda", code: "+250", flag: "🇷🇼", min: 9, max: 9 }, { name: "Burundi", code: "+257", flag: "🇧🇮", min: 8, max: 8 },
+        { name: "Somalia", code: "+252", flag: "🇸🇴", min: 8, max: 9 }, { name: "Eritrea", code: "+291", flag: "🇪🇷", min: 7, max: 7 },
+        { name: "Djibouti", code: "+253", flag: "🇩🇯", min: 8, max: 8 }, { name: "South Sudan", code: "+211", flag: "🇸🇸", min: 9, max: 9 },
+        { name: "USA", code: "+1", flag: "🇺🇸", min: 10, max: 10 }, { name: "Canada", code: "+1", flag: "🇨🇦", min: 10, max: 10 },
+        { name: "UK", code: "+44", flag: "🇬🇧", min: 10, max: 10 }, { name: "UAE", code: "+971", flag: "🇦🇪", min: 9, max: 9 },
+        { name: "India", code: "+91", flag: "🇮🇳", min: 10, max: 10 }, { name: "Australia", code: "+61", flag: "🇦🇺", min: 9, max: 9 },
+        { name: "Germany", code: "+49", flag: "🇩🇪", min: 10, max: 11 }, { name: "France", code: "+33", flag: "🇫🇷", min: 9, max: 9 },
+        { name: "China", code: "+86", flag: "🇨🇳", min: 11, max: 11 }, { name: "Japan", code: "+81", flag: "🇯🇵", min: 10, max: 10 },
+        { name: "Brazil", code: "+55", flag: "🇧🇷", min: 10, max: 11 }, { name: "South Africa", code: "+27", flag: "🇿🇦", min: 9, max: 9 },
+        { name: "Nigeria", code: "+234", flag: "🇳🇬", min: 10, max: 10 }, { name: "Egypt", code: "+20", flag: "🇪🇬", min: 10, max: 10 },
+        { name: "Saudi Arabia", code: "+966", flag: "🇸🇦", min: 9, max: 9 }
+    ];
 
     function populateCountrySelects() {
         const countrySelects = document.querySelectorAll('.dynamic-country');
@@ -208,17 +223,21 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================
        6. AUTHENTICATION FORMS PROCESSING
        ========================================== */
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const showRegBtn = document.getElementById('showRegisterBtn');
-    const showLoginBtn = document.getElementById('showLoginBtn');
+    const forms = {
+        login: document.getElementById('loginForm'),
+        register: document.getElementById('registerForm'),
+        forgot: document.getElementById('forgotPasswordForm'),
+        reset: document.getElementById('resetPasswordForm')
+    };
 
-    if (showRegBtn) showRegBtn.addEventListener('click', () => { loginForm.style.display='none'; registerForm.style.display='block'; showRegBtn.style.background='var(--primary-color)'; showRegBtn.style.color='#fff'; showLoginBtn.style.background='transparent'; showLoginBtn.style.color='var(--text-light)'; });
-    if (showLoginBtn) showLoginBtn.addEventListener('click', () => { registerForm.style.display='none'; loginForm.style.display='block'; showLoginBtn.style.background='var(--primary-color)'; showLoginBtn.style.color='#fff'; showRegBtn.style.background='transparent'; showRegBtn.style.color='var(--text-light)'; });
+    document.getElementById('showRegisterBtn')?.addEventListener('click', () => { forms.login.style.display='none'; forms.register.style.display='block'; document.getElementById('showRegisterBtn').style.background='var(--primary-color)'; document.getElementById('showRegisterBtn').style.color='#fff'; document.getElementById('showLoginBtn').style.background='transparent'; document.getElementById('showLoginBtn').style.color='var(--text-light)'; });
+    document.getElementById('showLoginBtn')?.addEventListener('click', () => { forms.register.style.display='none'; forms.login.style.display='block'; document.getElementById('showLoginBtn').style.background='var(--primary-color)'; document.getElementById('showLoginBtn').style.color='#fff'; document.getElementById('showRegisterBtn').style.background='transparent'; document.getElementById('showRegisterBtn').style.color='var(--text-light)'; });
+    document.getElementById('forgotPasswordLink')?.addEventListener('click', (e) => { e.preventDefault(); forms.login.style.display='none'; document.getElementById('authTabs').style.display='none'; forms.forgot.style.display='block'; });
+    document.getElementById('backToLoginLink')?.addEventListener('click', (e) => { e.preventDefault(); forms.forgot.style.display='none'; document.getElementById('authTabs').style.display='flex'; forms.login.style.display='block'; });
 
     // --- REGISTRATION ---
-    if (registerForm) {
-        registerForm.addEventListener('submit', async (e) => {
+    if (forms.register) {
+        forms.register.addEventListener('submit', async (e) => {
             e.preventDefault();
             const pass = document.getElementById('regPassword').value;
             const confirmPass = document.getElementById('regConfirmPassword').value;
@@ -241,13 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 password: pass,
                 gender: document.getElementById('regGender').value,
                 age: document.getElementById('regAge').value,
-                country: document.getElementById('regCountry').value
+                country: document.getElementById('regCountry').value,
+                referredBy: localStorage.getItem('urjii_referred_by') || null
             };
             
             showCustomAlert("Processing registration...", "processing");
 
             try {
-                const response = await fetch('https://urjii-software-company.vercel.app/api/register', {
+                const response = await fetch(`${API_URL}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userData)
@@ -256,8 +276,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (response.ok) {
-                    showCustomAlert("Registered successfully! You can now log in.", "success", () => showLoginBtn.click());
-                    registerForm.reset();
+                    showCustomAlert("Registered successfully! You can now log in.", "success", () => document.getElementById('showLoginBtn').click());
+                    forms.register.reset();
                 } else {
                     showCustomAlert(data.error || "Registration failed.", "error");
                 }
@@ -268,8 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- LOGIN ---
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
+    if (forms.login) {
+        forms.login.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('loginIdentifier').value.trim();
             const pass = document.getElementById('loginPassword').value;
@@ -277,30 +297,21 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomAlert("Authenticating...", "processing");
 
             try {
-                const response = await fetch('https://urjii-software-company.vercel.app/api/login', {
+                const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: id, password: pass })
+                    body: JSON.stringify({ identifier: id, password: pass })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem('urjii_is_logged_in', 'true');
-                    localStorage.setItem('urjii_user', JSON.stringify({
-                        token: data.token,
-                        firstName: data.user?.firstName || "User",
-                        lastName: data.user?.lastName || "",
-                        email: data.user?.email || id,
-                        fullPhone: data.user?.phone || ""
-                    }));
-                    
+                    localStorage.setItem('urjii_token', data.token);
                     const existing = document.querySelector('.custom-alert-overlay');
                     if(existing) existing.remove();
-                    window.location.href = "profile.html";
+                    window.location.href = "/profile";
                 } else { 
                     showCustomAlert(data.error || "Invalid credentials. Please try again.", "error");
-                    document.getElementById('loginError').style.display = 'block'; 
                 }
             } catch (error) {
                 showCustomAlert("Server connection failed.", "error");
@@ -308,8 +319,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- FORGOT PASSWORD ---
+    forms.forgot?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showCustomAlert("Generating reset token...", "processing");
+        const res = await fetch(`${API_URL}/forgot-password`, { 
+            method: 'POST', headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify({ identifier: document.getElementById('forgotIdentifier').value }) 
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showCustomAlert(`Reset Token Generated: ${data.resetToken} \n\n(In production, this is emailed. Please copy this token.)`, "success", () => {
+                forms.forgot.style.display = 'none'; forms.reset.style.display = 'block';
+            });
+        } else showCustomAlert(data.error, "error");
+    });
+
+    // --- RESET PASSWORD ---
+    forms.reset?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showCustomAlert("Resetting password...", "processing");
+        const res = await fetch(`${API_URL}/reset-password`, { 
+            method: 'POST', headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify({ resetToken: document.getElementById('resetTokenInput').value, newPassword: document.getElementById('newResetPassword').value }) 
+        });
+        if (res.ok) {
+            showCustomAlert("Password reset successful! Redirecting to homepage.", "success", () => { window.location.href = "/"; });
+        } else showCustomAlert("Invalid or expired token.", "error");
+    });
+
     /* ==========================================
-       7. ORDER FORM VALIDATION
+       7. ORDER FORM VALIDATION & FILE UPLOADS
        ========================================== */
     const orderForm = document.getElementById('orderForm');
     const projectFiles = document.getElementById('projectFiles');
@@ -354,19 +394,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            showCustomAlert('Processing your order...', 'processing');
+            showCustomAlert('Uploading files and processing your order...', 'processing');
             
             try {
-                const response = await fetch('https://urjii-software-company.vercel.app/api/order', {
+                const response = await fetch(`${API_URL}/order`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}` // Pass JWT for protected route
+                        'Authorization': `Bearer ${token}`
                     },
                     body: formData 
                 });
 
                 if (response.ok) {
-                    showCustomAlert('Order submitted successfully! We will contact you soon.', 'success', () => window.location.href="profile.html"); 
+                    showCustomAlert('Order submitted successfully! We will contact you soon.', 'success', () => window.location.href="/profile"); 
                     orderForm.reset();
                     if(fileListDisplay) fileListDisplay.innerHTML = '';
                 } else {
@@ -381,12 +421,9 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================
        8. PROFILE & AFFILIATE DASHBOARD LOGIC
        ========================================== */
-    if (window.location.pathname.includes('profile.html')) {
+    if (window.location.pathname.includes('/profile')) {
         
-        if(document.getElementById('displayUserName') && savedUser) {
-            document.getElementById('displayUserName').innerText = `${savedUser.firstName} ${savedUser.lastName}`;
-        }
-        
+        // Tab Switching
         const tabLinks = document.querySelectorAll('.profile-sidebar a[data-tab]');
         const tabPanes = document.querySelectorAll('.tab-pane');
         tabLinks.forEach(link => {
@@ -400,81 +437,86 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        const ordersContainer = document.getElementById('ordersContainer');
-        if (ordersContainer) {
-            ordersContainer.innerHTML = `
-                <div class="skeleton-box skeleton"></div>
-            `;
-            setTimeout(() => {
-                ordersContainer.innerHTML = `
-                    <div class="card" style="border-left: 4px solid var(--primary-color); text-align:left; padding:20px; margin-bottom:15px;">
-                        <div style="display:flex; justify-content: space-between; align-items: center;">
-                            <div><span style="font-size: 0.8rem; color: #888;">ORD-1029</span><h4 style="margin-top: 5px;">E-Commerce Platform</h4></div>
-                            <span style="background: rgba(201, 160, 99, 0.2); color: var(--primary-color); padding: 4px 10px; border-radius: 4px; font-size:0.8rem; font-weight: 500;">In Development</span>
-                        </div>
-                    </div>`;
-            }, 1000);
-        }
+        // Fetch User Data from Database
+        fetch(`${API_URL}/profile`, { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(user => {
+            if(document.getElementById('displayUserName')) document.getElementById('displayUserName').innerText = user.firstName;
+            if(document.getElementById('profFirstName')) document.getElementById('profFirstName').value = user.firstName;
+            if(document.getElementById('profLastName')) document.getElementById('profLastName').value = user.lastName;
+            if(document.getElementById('profEmail')) document.getElementById('profEmail').value = user.email;
+            if(document.getElementById('profGender')) document.getElementById('profGender').value = user.gender;
+            if(document.getElementById('profAge')) document.getElementById('profAge').value = user.age;
+            
+            // Affiliate View Setup
+            if(document.getElementById('affiliatePromoView') && document.getElementById('affiliateDashboardView')) {
+                document.getElementById('affiliatePromoView').style.display = 'none';
+                document.getElementById('affiliateDashboardView').style.display = 'block';
+                
+                const statsCards = document.querySelectorAll('.stat-card h3');
+                if(statsCards.length >= 3) {
+                    statsCards[0].innerText = user.referralClicks || 0;
+                    statsCards[1].innerText = user.successfulReferrals || 0;
+                    statsCards[2].innerText = `$${user.totalEarned || 0}`;
+                }
 
-        const promoView = document.getElementById('affiliatePromoView');
-        const dashboardView = document.getElementById('affiliateDashboardView');
-
-        if (promoView && dashboardView) {
-            let isAffiliate = localStorage.getItem('urjii_is_affiliate') === 'true';
-
-            function renderAffiliateUI() {
-                if (isAffiliate) {
-                    promoView.style.display = 'none';
-                    dashboardView.style.display = 'block';
-                    
-                    const userNameStr = savedUser && savedUser.firstName ? savedUser.firstName.toUpperCase() : 'USER';
-                    const uniqueId = Math.floor(1000 + Math.random() * 9000); 
-                    let storedRefLink = localStorage.getItem('urjii_ref_link');
-                    if (!storedRefLink) {
-                        // Dynamic URL Generation
-                        storedRefLink = `${window.location.origin}/ref/${userNameStr}${uniqueId}`;
-                        localStorage.setItem('urjii_ref_link', storedRefLink);
-                    }
-                    if (document.getElementById('refLinkInput')) {
-                        document.getElementById('refLinkInput').value = storedRefLink;
-                    }
-                } else {
-                    promoView.style.display = 'block';
-                    dashboardView.style.display = 'none';
-                    
-                    document.getElementById('joinAffiliateBtn').addEventListener('click', () => {
-                        showCustomAlert("Processing your affiliate registration...", "processing");
-                        setTimeout(() => {
-                            localStorage.setItem('urjii_is_affiliate', 'true');
-                            isAffiliate = true;
-                            showCustomAlert("Welcome to the Affiliate Program! Your dashboard is ready.", "success", () => {
-                                renderAffiliateUI();
-                            });
-                        }, 1000);
-                    });
+                if(document.getElementById('refLinkInput')) {
+                    document.getElementById('refLinkInput').value = `${window.location.origin}/?ref=${user.referralCode}`;
                 }
             }
+        }).catch(e => console.log(e));
 
-            renderAffiliateUI();
+        // Update Profile
+        document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showCustomAlert("Updating...", "processing");
+            await fetch(`${API_URL}/profile`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    firstName: document.getElementById('profFirstName').value,
+                    lastName: document.getElementById('profLastName').value,
+                    gender: document.getElementById('profGender').value,
+                    age: document.getElementById('profAge').value,
+                    country: document.getElementById('profCountry').value
+                })
+            });
+            showCustomAlert("Profile updated successfully!", "success");
+        });
+
+        // Change Password Security
+        document.getElementById('passwordForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const curr = document.querySelectorAll('#tab-security input[type="password"]')[0].value;
+            const newP = document.querySelectorAll('#tab-security input[type="password"]')[1].value;
+            const conf = document.querySelectorAll('#tab-security input[type="password"]')[2].value;
             
-            const copyBtn = document.getElementById('copyRefBtn');
-            if(copyBtn) {
-                copyBtn.addEventListener('click', () => {
-                    document.getElementById('refLinkInput').select();
-                    document.execCommand("copy");
-                    showCustomAlert("Referral Link Copied successfully!", "success");
-                });
-            }
-        }
+            if (newP !== conf) return showCustomAlert("New passwords don't match!", "error");
+            
+            showCustomAlert("Updating security...", "processing");
+            const res = await fetch(`${API_URL}/password`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ currentPassword: curr, newPassword: newP })
+            });
+            if (res.ok) { showCustomAlert("Password Updated Securely!", "success"); e.target.reset(); }
+            else { const d = await res.json(); showCustomAlert(d.error || "Incorrect current password.", "error"); }
+        });
 
         document.getElementById('sidebarLogoutBtn')?.addEventListener('click', () => { 
             showCustomAlert("Logging out...", "processing");
             setTimeout(() => {
-                localStorage.removeItem('urjii_is_logged_in'); 
-                localStorage.removeItem('urjii_user');
-                window.location.href="index.html"; 
+                localStorage.removeItem('urjii_token'); 
+                window.location.href="/"; 
             }, 1000);
         });
+
+        const copyBtn = document.getElementById('copyRefBtn');
+        if(copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                document.getElementById('refLinkInput').select();
+                document.execCommand("copy");
+                showCustomAlert("Referral Link Copied successfully!", "success");
+            });
+        }
     }
 
     /* ==========================================
@@ -492,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             showCustomAlert("Sending your message...", "processing");
             try {
-                const response = await fetch('https://urjii-software-company.vercel.app/api/contact', {
+                const response = await fetch(`${API_URL}/contact`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -533,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             showCustomAlert("Submitting your review...", "processing");
             try {
-                await fetch('https://urjii-software-company.vercel.app/api/review', {
+                await fetch(`${API_URL}/review`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name: revName, rating: currentRating, review: revText })
@@ -547,13 +589,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ==========================================
-       11. MISC UTILS
+       11. MISC UTILS (Blog Search, Mobile Menu, Animations)
        ========================================== */
+    const blogSearch = document.getElementById('blogSearch');
+    if (blogSearch) {
+        blogSearch.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.blog-card').forEach(card => {
+                card.style.display = card.innerText.toLowerCase().includes(term) ? 'block' : 'none';
+            });
+        });
+    }
+
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
-    if(hamburger) hamburger.addEventListener('click', () => { navLinks.classList.toggle('active'); hamburger.classList.toggle('fa-bars'); hamburger.classList.toggle('fa-times'); });
+    if(hamburger) {
+        hamburger.addEventListener('click', () => { 
+            navLinks.classList.toggle('active'); 
+            hamburger.classList.toggle('fa-bars'); 
+            hamburger.classList.toggle('fa-times'); 
+        });
+    }
     
     const hiddenElements = document.querySelectorAll('.hidden');
-    const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }); }, { threshold: 0.1 });
-    hiddenElements.forEach(el => observer.observe(el));
+    if('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => { 
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }); 
+        }, { threshold: 0.1 });
+        hiddenElements.forEach(el => observer.observe(el));
+    } else {
+        hiddenElements.forEach(el => el.classList.add('show'));
+    }
 });
