@@ -4,182 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Service | Urjii Software</title>
-
-    <!-- PWA Manifest & Theme Color -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#121212">
-    <link rel="apple-touch-icon" href="logo.png">
-
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Start your project with Urjii Software Company. Fill out our project inquiry form to get started with web, app, or system development.">
-    <meta name="keywords" content="Urjii Software, Hire Developer Ethiopia, Project Inquiry, Web Development Quote">
-    <meta name="author" content="Urjii Software Company">
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://urjiisoftware.pro.et/order">
-    <meta property="og:title" content="Order a Service | Urjii Software Company">
-    <meta property="og:description" content="Start your digital transformation journey with Urjii Software Company.">
-    <meta property="og:image" content="/logo.png">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body style="padding-top: 100px;">
     <header>
         <div class="container nav-container">
-            <a href="/" class="logo-container">
-                <img src="logo.png" alt="Urjii Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/150/C9A063/000000?text=U'">
+            <a href="index.html" class="logo-container">
+                <img src="logo.png" class="logo-img" alt="Logo">
                 <div class="logo-text"><span class="text-gold">Urjii</span><span class="text-black">Software</span></div>
             </a>
             <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/services">Services</a></li>
-                <li><a href="/contact">Contact</a></li>
-                <li><a href="/order" class="btn">Order Now</a></li>
-                <li id="authHeaderActions"></li>
+                <li><a href="index.html">Home</a></li>
+                <li class="notif-wrapper"><i class="fa-solid fa-bell notif-icon"></i><span class="notif-badge" id="notifBadge">0</span><div class="notif-dropdown" id="notifDropdown"></div></li>
             </ul>
-            <div class="nav-actions"><button class="theme-toggle"><i class="fa-solid fa-moon"></i></button><i class="fa-solid fa-bars hamburger"></i></div>
         </div>
     </header>
 
-    <main style="padding-top: 100px; padding-bottom: 80px;">
-        <section class="container hidden">
-            <h1 class="section-title">Project Inquiry</h1>
-            <p style="text-align: center; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto;">
-                Help us understand your business needs. By answering these questions, we can evaluate your project effectively and save both of us valuable time.
-            </p>
+    <main class="container" style="max-width: 800px; padding-bottom: 80px;">
+        <h1 class="section-title">Project Inquiry</h1>
+        <p style="text-align: center; color: var(--primary-color); font-size: 1.2rem; font-weight: bold; margin-bottom: 30px;">🔥 Get up to 30% discount on your first project with us!</p>
+        
+        <div class="card" style="text-align: left;">
+            <div class="progress-bar-container"><div class="progress-bar" id="orderProgress" style="width: 50%;"></div><span class="step-indicator">Step 1/2</span></div>
             
-            <div class="form-animated-border" style="max-width: 800px; margin: 0 auto; text-align: left;">
-                <div class="form-inner" style="padding: 40px;">
-                    <form id="orderForm">
-                        
-                        <!-- SECTION 1: Contact & Context -->
-                        <h3 class="form-section-title">1. Contact & Context</h3>
-                        <div class="form-group">
-                            <label>Select Service *</label>
-                            <select id="serviceType" class="form-control" required>
-                                <option value="">-- Choose a Service --</option>
-                                <option value="Web Development">Web Development</option>
-                                <option value="App Development">App Development</option>
-                                <option value="System Development">System Development</option>
-                                <option value="UI/UX Design">UI/UX Design</option>
-                            </select>
-                        </div>
-                        <div class="form-grid">
-                            <div class="form-group"><label>Full Name *</label><input type="text" id="fullName" class="form-control" required></div>
-                            <div class="form-group"><label>Job Title (Optional)</label><input type="text" id="jobTitle" class="form-control"></div>
-                        </div>
+            <form id="orderForm">
+                <!-- STEP 1 -->
+                <div class="form-step active">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">1. Personal & Company Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>First Name *</label><input type="text" id="fullName" class="form-control" required></div>
+                        <div class="form-group"><label>Last Name *</label><input type="text" class="form-control" required></div>
+                        <div class="form-group"><label>Email Address *</label><input type="email" id="email" class="form-control" required></div>
+                        <div class="form-group"><label>Phone Number *</label><input type="text" id="phone" class="form-control" required></div>
                         <div class="form-group"><label>Company Name *</label><input type="text" id="companyName" class="form-control" required></div>
-                        <div class="form-grid">
-                            <div class="form-group"><label>Email Address *</label><input type="email" id="email" class="form-control" required></div>
-                            <div class="form-group">
-                                <label>Phone Number *</label>
-                                <div class="phone-input-group">
-                                    <select id="orderPhoneCode" class="form-control phone-country dynamic-phone-code" required></select>
-                                    <input type="number" id="orderPhoneNum" class="form-control phone-number" placeholder="Enter number..." required>
-                                </div>
-                                <span id="phoneError" class="error-msg"></span>
-                            </div>
-                        </div>
+                        <div class="form-group"><label>Job Title</label><input type="text" placeholder="Owner, Manager..." class="form-control"></div>
+                    </div>
+                    <button type="button" class="btn next-btn" style="width: 100%; margin-top: 15px;">Next Step <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
 
-                        <!-- SECTION 2: Project Scope -->
-                        <h3 class="form-section-title">2. Project Scope</h3>
-                        <div class="form-group">
-                            <label>What is the biggest challenge your business is facing right now? *</label>
-                            <textarea id="businessProblem" class="form-control" rows="4" placeholder="Describe your problem or idea..." required></textarea>
-                            <div id="wordCountDisplay" class="word-count-hint">0 / 120 words</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Do you already have an existing Website/App? *</label>
-                            <select id="hasWebsite" class="form-control" required>
-                                <option value="">-- Select --</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
+                <!-- STEP 2 -->
+                <div class="form-step">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">2. Project Details</h3>
+                    <div class="form-group"><label>Service Selection *</label>
+                        <select id="serviceType" class="form-control" required>
+                            <option value="Web Development">Web Development</option>
+                            <option value="App Development" disabled>App Development (Upcoming)</option>
+                            <option value="E-learning" disabled>E-learning (Upcoming)</option>
+                            <option value="System Development" disabled>System Development (Upcoming)</option>
+                        </select>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Launch Date *</label><input type="date" id="launchDate" class="form-control" required></div>
+                        <div class="form-group"><label>Budget Range (ETB) *</label>
+                            <select id="budgetRange" class="form-control" required>
+                                <option value="10k-30k">10,000 - 30,000 ETB</option>
+                                <option value="30k-70k">30,000 - 70,000 ETB</option>
+                                <option value="70k-100k">70,000 - 100,000 ETB</option>
+                                <option value="100k+">100,000+ ETB</option>
                             </select>
                         </div>
-
-                        <!-- SECTION 3: Timeline & Urgency -->
-                        <h3 class="form-section-title">3. Timeline & Urgency</h3>
-                        <div class="form-group">
-                            <label>Ideal Launch Date *</label>
-                            <input type="date" id="launchDate" class="form-control" required>
-                        </div>
-
-                        <!-- SECTION 4: Qualification -->
-                        <h3 class="form-section-title">4. Qualification</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Budget Range (ETB) *</label>
-                                <select id="budgetRange" class="form-control" required>
-                                    <option value="">-- Select Budget --</option>
-                                    <option value="10,000 - 30,000 ETB">10,000 – 30,000 ETB</option>
-                                    <option value="30,000 - 70,000 ETB">30,000 – 70,000 ETB</option>
-                                    <option value="70,000 - 100,000 ETB">70,000 – 100,000 ETB</option>
-                                    <option value="100,000+ ETB">100,000+ ETB</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Primary Goal *</label>
-                                <select id="primaryGoal" class="form-control" required>
-                                    <option value="">-- Select Goal --</option>
-                                    <option value="Increase Business efficiency">To Increase Business efficiency</option>
-                                    <option value="Increase Sales/Revenue">To Increase Sales/Revenue</option>
-                                    <option value="Brand Awareness">Brand Awareness</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- SECTION 5: File Upload -->
-                        <h3 class="form-section-title">5. File Upload (Optional)</h3>
-                        <div class="form-group">
-                            <label for="projectFiles">Attach Supporting Documents</label>
-                            <input type="file" id="projectFiles" class="form-control" style="padding: 9px;" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" multiple>
-                            <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">Max size: 10MB. Formats: PDF, DOC, Images (JPG, PNG).</p>
-                            <div id="fileListDisplay" class="file-list"></div>
-                        </div>
-
-                        <!-- SECTION 6: Preferred Communication -->
-                        <h3 class="form-section-title">6. Preferred Communication</h3>
-                        <div class="form-group">
-                            <label style="margin-bottom: 10px;">How should we reach out to you? *</label>
-                            <div class="radio-group">
-                                <label class="radio-label"><input type="radio" name="preferredComm" value="Phone Call" required> Phone Call</label>
-                                <label class="radio-label"><input type="radio" name="preferredComm" value="Telegram Message"> Telegram Message</label>
-                                <label class="radio-label"><input type="radio" name="preferredComm" value="In-person Meeting (Dire Dawa only)"> In-person Meeting (Dire Dawa only)</label>
-                            </div>
-                        </div>
-                        
-                        <div class="agreement-group" style="margin-top: 30px;">
-                            <input type="checkbox" id="terms_agree" required>
-                            <label for="terms_agree">I agree to the <a href="/terms" target="_blank" class="legal-link">Terms & Conditions</a> and <a href="/privacy" target="_blank" class="legal-link">Privacy Policy</a>.</label>
-                        </div>
-                        
-                        <button type="submit" id="orderSubmitBtn" class="btn" style="width: 100%; font-size: 1.1rem; padding: 15px;">Submit Project Request</button>
-                    </form>
+                    </div>
+                    <div class="form-group"><label>Project Description *</label><textarea id="businessProblem" class="form-control" rows="4" required></textarea></div>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="button" class="btn prev-btn" style="background: #888; flex: 1;">Back</button>
+                        <button type="submit" class="btn" style="flex: 2;">Submit Request</button>
+                    </div>
                 </div>
-            </div>   
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-              <div><a href="/" class="logo-container" style="align-items:flex-start; margin-bottom:15px;"><img src="logo.png" class="logo-img" alt="Logo"><div class="logo-text"><span class="text-gold">Urjii</span><span class="text-black" style="color:#fff;">Software</span></div></a><p>Empowering businesses through innovative tech solutions.</p></div>
-                <div><h4>Quick Links</h4><ul class="footer-links"><li><a href="/about">About Us</a></li><li><a href="/portfolio">Portfolio</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/blog">Blogs</a></li></ul></div>
-                <div><h4>Legal</h4><ul class="footer-links"><li><a href="/terms">Terms & Conditions</a></li><li><a href="/privacy">Privacy Policy</a></li></ul></div>
-                <div>
-                    <h4>Newsletter</h4>
-                    <form class="newsletter-form"><input type="email" class="newsletter-input" placeholder="Email address" required><button type="submit" class="newsletter-btn"><i class="fa-solid fa-paper-plane"></i></button></form>
-                    <div class="social-icons" style="margin-top: 20px;"><a href="#"><i class="fa-brands fa-facebook-f"></i></a><a href="#"><i class="fa-brands fa-twitter"></i></a><a href="#"><i class="fa-brands fa-linkedin-in"></i></a></div>
-                </div>
-            </div>
-            <div class="copyright"><p>&copy; 2026 Urjii Software Company. All Rights Reserved.</p></div>
+            </form>
         </div>
-    </footer>
+    </main>
     <script src="script.js"></script>
 </body>
-    </html>
+                                                    </html>
