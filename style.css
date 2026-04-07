@@ -1,3 +1,4 @@
+
 :root {
   --primary-color: #C9A063;
   --primary-hover: #b0894f;
@@ -169,7 +170,7 @@ footer { background-color: #111; color: #fff; padding: 60px 0 20px; margin-top: 
 
 
 
-    <!-- About Page Specific CSS (Founder Animations & Layout) -->
+    /* About Page Specific CSS (Founder Animations & Layout) */
   
         /* Founder Section */
         .founder-section {
