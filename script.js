@@ -7,13 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         navigator.serviceWorker.register('/service-worker.js')
           .then(registration => {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
-          }, err => {
-            console.log('ServiceWorker registration failed: ', err);
-          });
+          }, err => {});
       });
     }
 
-    // Track Affiliate Links on any page load
+    // Track Affiliate Links
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('ref')) {
         localStorage.setItem('urjii_referred_by', urlParams.get('ref'));
@@ -51,10 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let closeBtnHtml = showClose ? '<button class="close-alert-btn" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-light); transition:0.2s;">&times;</button>' : '';
 
+        // Allow HTML inside the message for specific formatting (like the success message)
         box.innerHTML = `
             ${closeBtnHtml}
             ${iconHtml}
-            <p style="margin-bottom: 20px; font-size: 1.1rem; font-weight: 500;">${message}</p>
+            <div style="margin-bottom: 20px; font-size: 1.1rem; font-weight: 500;">${message}</div>
         `;
         
         if (type !== 'processing') {
@@ -89,23 +88,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ==========================================
-       2. THEME SETUP (Black Base Default)
+       2. THEME SETUP
        ========================================== */
     const themeToggle = document.querySelector('.theme-toggle');
     let currentTheme = localStorage.getItem('theme');
-    
     if (!currentTheme) {
         currentTheme = 'dark';
         localStorage.setItem('theme', 'dark');
     }
-    
     if (currentTheme === 'dark') {
         document.body.classList.add('dark-mode');
         if (themeToggle) themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
     } else {
         if (themeToggle) themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
     }
-
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
@@ -265,16 +261,13 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             
             showCustomAlert("Processing registration...", "processing");
-
             try {
                 const response = await fetch(`${API_URL}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userData)
                 });
-
                 const data = await response.json();
-
                 if (response.ok) {
                     showCustomAlert("Registered successfully! You can now log in.", "success", () => document.getElementById('showLoginBtn').click());
                     forms.register.reset();
@@ -295,16 +288,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const pass = document.getElementById('loginPassword').value;
             
             showCustomAlert("Authenticating...", "processing");
-
             try {
                 const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ identifier: id, password: pass })
                 });
-
                 const data = await response.json();
-
                 if (response.ok) {
                     localStorage.setItem('urjii_token', data.token);
                     const existing = document.querySelector('.custom-alert-overlay');
@@ -349,12 +339,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ==========================================
-       7. ORDER FORM VALIDATION & FILE UPLOADS
+       7. SMART ORDER FORM VALIDATION & LOGIC
        ========================================== */
     const orderForm = document.getElementById('orderForm');
     const projectFiles = document.getElementById('projectFiles');
     const fileListDisplay = document.getElementById('fileListDisplay');
+    const probTextarea = document.getElementById('businessProblem');
+    const wordCountDisplay = document.getElementById('wordCountDisplay');
+    const orderSubmitBtn = document.getElementById('orderSubmitBtn');
 
+    // Word Count Tracker
+    if (probTextarea && wordCountDisplay) {
+        probTextarea.addEventListener('input', () => {
+            const words = probTextarea.value.trim().split(/\s+/).filter(w => w.length > 0);
+            wordCountDisplay.innerText = `${words.length} / 120 words`;
+            if (words.length > 120) {
+                wordCountDisplay.style.color = '#e74c3c';
+            } else {
+                wordCountDisplay.style.color = '#888';
+            }
+        });
+    }
+
+    // File Upload Display
     if (projectFiles && fileListDisplay) {
         projectFiles.addEventListener('change', function() {
             fileListDisplay.innerHTML = '';
@@ -364,9 +371,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Submit Order
     if (orderForm) {
         orderForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Check Word Count Limit
+            const words = probTextarea.value.trim().split(/\s+/).filter(w => w.length > 0);
+            if (words.length > 120) {
+                showCustomAlert("Please limit your business problem description to 120 words.", "error");
+                return;
+            }
+
+            // Check Phone Validation
             const phoneSelect = document.getElementById('orderPhoneCode');
             const phoneInput = document.getElementById('orderPhoneNum').value;
             const selectedOpt = phoneSelect.options[phoneSelect.selectedIndex];
@@ -377,24 +394,33 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             document.getElementById('phoneError').style.display = 'none';
             
-            const formData = new FormData();
-            const selects = orderForm.querySelectorAll('select');
-            const inputs = orderForm.querySelectorAll('input[type="text"], input[type="email"], input[type="number"]');
-            const textarea = orderForm.querySelector('textarea');
+            // Button loading state
+            const originalBtnText = orderSubmitBtn.innerText;
+            orderSubmitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...';
+            orderSubmitBtn.disabled = true;
             
-            if(selects[0]) formData.append('serviceType', selects[0].value);
-            if(inputs[0]) formData.append('fullName', inputs[0].value);
-            if(inputs[1]) formData.append('email', inputs[1].value);
+            const formData = new FormData();
+            formData.append('serviceType', document.getElementById('serviceType').value);
+            formData.append('fullName', document.getElementById('fullName').value);
+            formData.append('jobTitle', document.getElementById('jobTitle').value);
+            formData.append('companyName', document.getElementById('companyName').value);
+            formData.append('email', document.getElementById('email').value);
             formData.append('phone', selectedOpt.value + phoneInput);
-            if(textarea) formData.append('description', textarea.value);
+            formData.append('businessProblem', probTextarea.value);
+            formData.append('hasWebsite', document.getElementById('hasWebsite').value);
+            formData.append('launchDate', document.getElementById('launchDate').value);
+            formData.append('budgetRange', document.getElementById('budgetRange').value);
+            formData.append('primaryGoal', document.getElementById('primaryGoal').value);
+            
+            // Handle Radio Buttons for Communication
+            const preferredComm = document.querySelector('input[name="preferredComm"]:checked').value;
+            formData.append('preferredCommunication', preferredComm);
             
             if (projectFiles && projectFiles.files.length > 0) {
                 for (let i = 0; i < projectFiles.files.length; i++) {
                     formData.append('files', projectFiles.files[i]);
                 }
             }
-            
-            showCustomAlert('Uploading files and processing your order...', 'processing');
             
             try {
                 const response = await fetch(`${API_URL}/order`, {
@@ -406,14 +432,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (response.ok) {
-                    showCustomAlert('Order submitted successfully! We will contact you soon.', 'success', () => window.location.href="/profile"); 
+                    showCustomAlert(
+                        `<p style="font-size:1.2rem; font-weight:600; margin-bottom:10px;">Thank you for your request.</p>
+                         <p style="font-size:1rem; color:#888;">We will review your request and contact you within a day through your preferred communication method.</p>`, 
+                        'success', 
+                        () => window.location.href="/profile"
+                    ); 
                     orderForm.reset();
                     if(fileListDisplay) fileListDisplay.innerHTML = '';
+                    if(wordCountDisplay) wordCountDisplay.innerText = '0 / 120 words';
                 } else {
                     showCustomAlert("Failed to submit order.", "error");
                 }
             } catch (error) {
                 showCustomAlert("Network error. Please try again later.", "error");
+            } finally {
+                // Restore button
+                orderSubmitBtn.innerHTML = originalBtnText;
+                orderSubmitBtn.disabled = false;
             }
         });
     }
