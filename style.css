@@ -297,3 +297,50 @@ body:not(.dark-mode) .strategy-box {
     .strategy-box { text-align: center; }
     .strategy-box ul { display: inline-block; text-align: left; }
   }
+
+
+
+
+
+/* ==========================================
+   UPCOMING BADGE FOR SERVICES CARDS
+   ========================================== */
+
+/* Ensure the absolute badge stays contained within the card */
+.card {
+    position: relative; 
+}
+
+.badge-upcoming {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: var(--primary-color); /* Gold #C9A063 */
+    color: #000000; /* Black */
+    font-family: var(--font-body); /* Poppins */
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    z-index: 10;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    animation: badgeFloatPulse 2.5s infinite ease-in-out;
+}
+
+/* Subtle float and glow pulse animation */
+@keyframes badgeFloatPulse {
+    0% {
+        transform: translateY(0);
+        box-shadow: 0 0 0 0 rgba(201, 160, 99, 0.5);
+    }
+    50% {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 10px 3px rgba(201, 160, 99, 0.2);
+    }
+    100% {
+        transform: translateY(0);
+        box-shadow: 0 0 0 0 rgba(201, 160, 99, 0);
+    }
+}
