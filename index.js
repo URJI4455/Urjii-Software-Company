@@ -188,7 +188,11 @@ app.put('/api/password', authMiddleware, async (req, res) => {
 // --- ORDER & FILE UPLOADS ---
 app.post('/api/order', authMiddleware, upload.array('files', 5), async (req, res) => {
     try {
-        const { serviceType, fullName, email, phone, description } = req.body;
+        const { 
+            serviceType, fullName, jobTitle, companyName, email, 
+            phone, businessProblem, hasWebsite, launchDate, 
+            budgetRange, primaryGoal, preferredCommunication 
+        } = req.body;
         
         const fileMetadata = req.files ? req.files.map(f => ({
             originalName: f.originalname,
@@ -201,9 +205,16 @@ app.post('/api/order', authMiddleware, upload.array('files', 5), async (req, res
             userId: req.user.userId,
             service: serviceType,
             name: fullName,
+            jobTitle: jobTitle,
+            companyName: companyName,
             email: email,
             phone: phone,
-            description: description,
+            businessProblem: businessProblem,
+            hasWebsite: hasWebsite,
+            launchDate: launchDate,
+            budgetRange: budgetRange,
+            primaryGoal: primaryGoal,
+            preferredCommunication: preferredCommunication,
             files: fileMetadata,
             status: 'Pending'
         });
@@ -211,6 +222,7 @@ app.post('/api/order', authMiddleware, upload.array('files', 5), async (req, res
         await newOrder.save();
         res.status(201).json({ message: "Order and files submitted successfully" });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Server error during order submission." });
     }
 });
