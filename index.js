@@ -8,8 +8,8 @@ const multer = require('multer');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-// Models
-const User = require('./User.js'); 
+// Models (Fixed: Users.js instead of User.js to match your file name)
+const User = require('./Users.js'); 
 const Order = require('./order.js');
 const Contact = require('./Contact.js');
 const Review = require('./Review.js');
@@ -35,8 +35,8 @@ if (MONGODB_URI) {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // e.g., your admin@gmail.com
-        pass: process.env.EMAIL_PASS  // 16-character Gmail App Password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS  
     }
 });
 
@@ -187,21 +187,17 @@ app.put('/api/password', authMiddleware, async (req, res) => {
     } catch (error) { res.status(500).json({ error: "Server error." }); }
 });
 
-// --- ORDER API (WITH NODEMAILER & FILE ATTACHMENTS) ---
+// --- ORDER API ---
 app.post('/api/order', authMiddleware, upload.array('files', 5), async (req, res) => {
     try {
         const { serviceType, fullName, jobTitle, companyName, email, phone, businessProblem, hasWebsite, launchDate, budgetRange, primaryGoal, preferredCommunication } = req.body;
         
-        // Extract filenames for DB (Space saving)
         const fileNames = req.files ? req.files.map(f => f.originalname) : [];
-
-        // Prepare raw files for Email attachments
         const emailAttachments = req.files ? req.files.map(f => ({
             filename: f.originalname,
             content: f.buffer
         })) : [];
 
-        // Save order to MongoDB
         const newOrder = new Order({
             userId: req.user.userId, service: serviceType, name: fullName, jobTitle, companyName,
             email, phone, businessProblem, hasWebsite, launchDate, budgetRange,
@@ -209,19 +205,15 @@ app.post('/api/order', authMiddleware, upload.array('files', 5), async (req, res
         });
         await newOrder.save();
 
-        // Trigger Emails (Only if ENV variables are configured)
         if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-            
-            // 1. Send Email to Admin (with attached files)
             await transporter.sendMail({
                 from: `"Urjii Platform" <${process.env.EMAIL_USER}>`,
-                to: process.env.EMAIL_USER, // Sends to you
+                to: process.env.EMAIL_USER,
                 subject: `🚨 NEW ORDER: ${serviceType} | ${companyName}`,
                 text: `You received a new order!\n\nClient: ${fullName}\nCompany: ${companyName}\nEmail: ${email}\nPhone: ${phone}\n\nProject Goal: ${primaryGoal}\nBudget: ${budgetRange}\nLaunch Date: ${launchDate}\n\nProject Details:\n${businessProblem}`,
                 attachments: emailAttachments
             });
 
-            // 2. Send Confirmation Email to Client
             await transporter.sendMail({
                 from: `"Urjii Software" <${process.env.EMAIL_USER}>`,
                 to: email,
@@ -247,7 +239,6 @@ app.post('/api/contact', async (req, res) => {
         const newContact = new Contact({ name, email, subject, message });
         await newContact.save();
 
-        // Notify Admin
         if (process.env.EMAIL_USER) {
             await transporter.sendMail({
                 from: `"Urjii Contact Form" <${process.env.EMAIL_USER}>`,
@@ -276,7 +267,6 @@ app.post('/api/newsletter', async (req, res) => {
     try {
         const { email } = req.body;
         
-        // Notify Admin via Email
         if (process.env.EMAIL_USER) {
             await transporter.sendMail({
                 from: `"Urjii Newsletter" <${process.env.EMAIL_USER}>`,
@@ -290,7 +280,6 @@ app.post('/api/newsletter', async (req, res) => {
         res.status(500).json({ error: "Server error subscribing to newsletter." }); 
     }
 });
-
 
 // ==========================================
 // SECURE ADMIN ROUTES
@@ -319,5 +308,4 @@ app.get('/api/admin/users', adminAuthMiddleware, async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Server Error' }); }
 });
 
-// Allows Vercel to handle the app
 module.exports = app;
