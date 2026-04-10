@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================================================
        01. CONFIGURATION, SERVICE WORKER & TELEGRAM WIDGET
        ========================================================================== */
-    const API_URL = '/api'; // Fixed for Vercel Serverless Backend to prevent Network Errors
+    const API_URL = 'https://urjii-software-company.vercel.app/api'; // Fixed for Vercel Serverless Backend to prevent Network Errors
     const token = localStorage.getItem('urjii_token');
     
     // Service Worker
