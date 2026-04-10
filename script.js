@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================================================
        01. CONFIGURATION, SERVICE WORKER & TELEGRAM WIDGET
        ========================================================================== */
-    const API_URL = 'https://urjii-software-company.vercel.app/api';// Points directly to your Vercel Node.js backend
+    const API_URL = '/api'; // Fixed for Vercel Serverless Backend to prevent Network Errors
     const token = localStorage.getItem('urjii_token');
     
     // Service Worker
@@ -11,9 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('load', () => navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
     }
 
-    // Telegram Support Widget (Restored & Integrated)
+    // Telegram Support Widget
     const tgWidget = document.createElement('a');
-    tgWidget.href = "https://t.me/Everysoultestdeath"; // Change to your actual Telegram link
+    tgWidget.href = "https://t.me/Everysoultestdeath"; 
     tgWidget.target = "_blank";
     tgWidget.className = "telegram-widget";
     tgWidget.innerHTML = `<i class="fa-brands fa-telegram"></i> <span>Telegram Support</span>`;
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Password Eye Toggles (Works across Auth & Profile)
+    // Password Eye Toggles
     document.querySelectorAll('.toggle-password').forEach(icon => {
         icon.addEventListener('click', function() {
             const input = this.previousElementSibling;
@@ -99,17 +99,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Notification Dropdown Logic (Fixed)
+    // Notification Dropdown Logic
     const notifyBtn = document.getElementById('notificationBtn');
     const notifyDropdown = document.getElementById('notificationDropdown');
     if (notifyBtn && notifyDropdown) {
         notifyBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation(); // Prevents instant closing
+            e.stopPropagation();
             notifyDropdown.classList.toggle('active');
         });
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!notifyBtn.contains(e.target) && !notifyDropdown.contains(e.target)) {
                 notifyDropdown.classList.remove('active');
@@ -117,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-  // Newsletter Form Logic (Connected to Backend)
+    // Newsletter Form Logic (Fixed: Connects to backend and triggers Red Notification Badge)
     document.querySelectorAll('.pro-newsletter').forEach(form => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -137,13 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (res.ok) {
                         showCustomAlert("Newsletter Subscribed Successfully!", "success");
+                        // This triggers the red badge
                         pushNotification("Subscription Active", "You will now receive updates on our latest blogs and services.");
                         form.reset();
                     } else {
                         showCustomAlert("Failed to subscribe. Try again.", "error");
                     }
                 } catch (err) {
-                    showCustomAlert("Network Error", "error");
+                    showCustomAlert("Network Error. Please try again.", "error");
                 } finally {
                     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
                     btn.disabled = false;
@@ -152,31 +152,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-// 1. Mobile Hamburger Menu Logic
+    // 1. Mobile Hamburger Menu Logic
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
     if (hamburger && navLinks) {
         hamburger.addEventListener('click', () => {
             navLinks.classList.toggle('active');
         });
-        // Close menu when clicking a link
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => navLinks.classList.remove('active'));
         });
     }
     
-  // 2. Notification System Engine
+    // 2. Notification System Engine
     let notifications = JSON.parse(localStorage.getItem('urjii_notifications')) || [];
     const notifyCount = document.getElementById('notifyCount');
     const notifyBody = document.getElementById('notifyBody');
 
-    // Global function to push new notifications
     window.pushNotification = function(title, message) {
         notifications.push({ title, message, read: false, id: Date.now() });
         localStorage.setItem('urjii_notifications', JSON.stringify(notifications));
         updateNotificationUI();
         
-        // Show Toast Popup
         const pop = document.createElement('div');
         pop.className = 'toast-popup';
         pop.innerHTML = `<strong style="font-size:1rem; margin-bottom:5px;">${title}</strong><div style="font-size:0.85rem; color:var(--text-muted);">${message}</div>`;
@@ -207,14 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="delete-notify-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
                 `;
                 
-                // Read Logic
                 item.querySelector('div').onclick = () => {
                     n.read = true;
                     localStorage.setItem('urjii_notifications', JSON.stringify(notifications));
                     updateNotificationUI();
                 };
                 
-                // Delete Logic
                 item.querySelector('.delete-notify-btn').onclick = (e) => {
                     e.stopPropagation();
                     notifications = notifications.filter(notif => notif.id !== n.id);
@@ -225,14 +220,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-    updateNotificationUI(); // Run on page load
-
-
+    updateNotificationUI();
 
     /* ==========================================================================
-       03. SLIDERS & SCROLL ANIMATIONS (INTERSECTION OBSERVER)
+       03. SLIDERS & SCROLL ANIMATIONS
        ========================================================================== */
-    // Hero Slider
     const heroSlides = document.querySelectorAll('.hero-slide');
     if (heroSlides.length > 0) {
         let currSlide = 0;
@@ -246,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(() => moveSlide(1), 5000); 
     }
 
-    // Services Auto-Scroll Track
     const sTrack = document.getElementById('servicesTrack');
     if (sTrack) {
         let isHovered = false;
@@ -262,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('servicePrev')?.addEventListener('click', () => sTrack.scrollBy({ left: -340, behavior: 'smooth' }));
     }
 
-    // Visibility Observer (Crucial for page rendering)
     const revealElements = document.querySelectorAll('.reveal-up, .reveal-right, .reveal-scale');
     if ('IntersectionObserver' in window) {
         const revealObserver = new IntersectionObserver((entries, observer) => {
@@ -281,8 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================================================
        04. STRICT VALIDATION & DROPDOWNS (EMAIL & PHONE)
        ========================================================================== */
-    
-    // Strict @gmail.com Validation
     const validateEmail = (inputElement) => {
         const val = inputElement.value.trim();
         let errorSpan = inputElement.nextElementSibling;
@@ -312,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Strict Phone Validation
     const validatePhone = (countrySelect, phoneInput) => {
         const countryName = countrySelect.options[countrySelect.selectedIndex]?.text.replace(/.*? /, '') || ''; 
         const val = phoneInput.value.trim();
@@ -352,21 +339,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Attach Input Listeners
     document.querySelectorAll('input[type="email"]').forEach(input => {
         input.addEventListener('input', () => validateEmail(input));
     });
 
     document.querySelectorAll('input[id*="Name"], input[id*="Title"], input[id*="Name"]').forEach(input => {
         input.addEventListener('input', function() {
-            this.value = this.value.replace(/[^a-zA-Z\s.-]/g, ''); // Numbers/symbols removed
+            this.value = this.value.replace(/[^a-zA-Z\s.-]/g, ''); 
         });
     });
 
-
-
-
-/* ==========================================================================
+    /* ==========================================================================
        05. COUNTRIES & PHONE DROPDOWNS
        ========================================================================== */
     const countriesData = [
@@ -378,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "UAE", code: "+971", flag: "🇦🇪", min: 9, max: 9 }
     ];
 
-    // 1. Populate ALL Country Selects
     document.querySelectorAll('.dynamic-country').forEach((select) => {
         select.innerHTML = '<option value="">Select Country</option>';
         countriesData.forEach(c => {
@@ -386,7 +368,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 2. Populate ALL Phone Code Selects
     document.querySelectorAll('.dynamic-phone-code').forEach((phoneSelect) => {
         phoneSelect.innerHTML = '';
         countriesData.forEach(c => {
@@ -394,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 3. Link them together so changing the country automatically changes the phone code
     document.querySelectorAll('.dynamic-country').forEach((select, i) => {
         const phoneSelect = document.querySelectorAll('.dynamic-phone-code')[i];
         if (phoneSelect) {
@@ -405,19 +385,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-
-
-
-
     /* ==========================================================================
-       05. ROUTING & AUTH GUARDS
+       06. ROUTING & AUTH GUARDS (Fixed 404 Errors)
        ========================================================================== */
     const authHeaderActions = document.getElementById('authHeaderActions');
     if (authHeaderActions) {
         authHeaderActions.innerHTML = token 
             ? `<a href="profile.html" class="btn btn-outline" style="border-radius: 30px; padding: 8px 20px;"><i class="fa-solid fa-user-circle"></i> Profile</a>`
-            : `<a href="auth.html" class="btn btn-outline" style="border-radius: 30px; padding: 8px 20px;">Login</a>`;
+            : `<a href="Auth.html" class="btn btn-outline" style="border-radius: 30px; padding: 8px 20px;">Login</a>`;
     }
 
     const currentPath = window.location.pathname.toLowerCase();
@@ -437,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-   // Upcoming Services Intercept (Event Delegation handles dynamically loaded buttons)
+   // Upcoming Services Intercept
     document.body.addEventListener('click', (e) => {
         const upcomingBtn = e.target.closest('[data-status="upcoming"]');
         if (upcomingBtn) {
@@ -456,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ==========================================================================
-       06. REAL BACKEND API INTEGRATIONS: AUTHENTICATION
+       07. REAL BACKEND API INTEGRATIONS: AUTHENTICATION
        ========================================================================== */
     const forms = { 
         reg: document.getElementById('registerForm'), 
@@ -465,11 +440,9 @@ document.addEventListener('DOMContentLoaded', () => {
         reset: document.getElementById('resetPasswordForm')
     };
 
-    // Tabs
     document.getElementById('showRegisterBtn')?.addEventListener('click', () => { forms.log.style.display='none'; forms.reg.style.display='block'; document.getElementById('showRegisterBtn').classList.replace('btn-outline', 'btn'); document.getElementById('showLoginBtn').classList.replace('btn', 'btn-outline'); });
     document.getElementById('showLoginBtn')?.addEventListener('click', () => { forms.reg.style.display='none'; forms.log.style.display='block'; document.getElementById('showLoginBtn').classList.replace('btn-outline', 'btn'); document.getElementById('showRegisterBtn').classList.replace('btn', 'btn-outline'); });
     
-    // Forgot Password Nav
     document.getElementById('forgotPasswordLink')?.addEventListener('click', (e) => { e.preventDefault(); forms.log.style.display='none'; document.getElementById('authTabs').style.display='none'; forms.forgot.style.display='block'; });
     document.getElementById('backToLoginLink')?.addEventListener('click', (e) => { e.preventDefault(); forms.forgot.style.display='none'; document.getElementById('authTabs').style.display='flex'; forms.log.style.display='block'; });
 
@@ -589,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ==========================================================================
-       07. REAL BACKEND API INTEGRATIONS: ORDER PORTAL (WITH FILES)
+       08. REAL BACKEND API INTEGRATIONS: ORDER PORTAL (WITH FILES)
        ========================================================================== */
     const step1 = document.getElementById('step1');
     const step2 = document.getElementById('step2');
@@ -598,7 +571,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const launchDateInput = document.getElementById('launchDate');
     if (launchDateInput) launchDateInput.min = new Date().toISOString().split("T")[0];
 
-    // Order Form Steps Logic
     if (nextBtn && step1 && step2) {
         nextBtn.addEventListener('click', () => {
             let isValid = true;
@@ -627,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ORDER SUBMIT API (FormData handles files inherently)
+    // ORDER SUBMIT API
     document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('submitOrderBtn');
@@ -648,7 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('hasWebsite', document.getElementById('hasWebsite').value);
         formData.append('businessProblem', document.getElementById('projectDescription').value);
 
-        // Append files dynamically
         const fileInput = document.getElementById('projectFiles');
         if (fileInput && fileInput.files.length > 0) {
             for (let i = 0; i < fileInput.files.length; i++) {
@@ -660,7 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`${API_URL}/order`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
-                body: formData // No Content-Type header so browser sets multipart boundary
+                body: formData 
             });
             const data = await res.json();
             
@@ -668,7 +639,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('orderForm').style.display = 'none'; 
                 document.getElementById('formProgressHeader').style.display = 'none'; 
                 document.getElementById('orderSuccessMessage').style.display = 'block';
-                // Trigger Notification
                 pushNotification("Order Received", "Your project inquiry was submitted successfully. We will contact you soon.");
             } else {
                 showCustomAlert(data.error || "Failed to submit order", "error");
@@ -681,11 +651,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ==========================================================================
-       08. REAL BACKEND API INTEGRATIONS: PROFILE & DASHBOARD
+       09. REAL BACKEND API INTEGRATIONS: PROFILE & DASHBOARD
        ========================================================================== */
     if (currentPath.includes('profile') && token) {
         
-        // Fetch User Data on Load
         const loadProfile = async () => {
             try {
                 const res = await fetch(`${API_URL}/profile`, {
@@ -698,7 +667,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('profFirstName').value = user.firstName;
                     document.getElementById('profLastName').value = user.lastName;
                     
-                    // Populate Email Field
                     const profEmail = document.getElementById('profEmail');
                     if (profEmail) profEmail.value = user.email;
 
@@ -717,7 +685,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         loadProfile();
 
-        // Profile Tabs Routing
         const urlTab = new URLSearchParams(window.location.search).get('tab');
         if (urlTab && document.getElementById(urlTab)) {
             document.querySelectorAll('.profile-sidebar a').forEach(t => t.classList.remove('active'));
@@ -735,7 +702,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Platform Appearance Settings
         const appSelect = document.getElementById('profAppearance');
         if (appSelect) {
             appSelect.value = localStorage.getItem('urjii_theme') || 'system';
@@ -747,7 +713,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        
         // UPDATE PROFILE API
         document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -816,7 +781,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) { showCustomAlert("Network Error", "error"); }
         });
 
-        // Copy Referral Link
         document.getElementById('copyRefBtn')?.addEventListener('click', () => { 
             const refInput = document.getElementById('refLinkInput');
             refInput.select(); 
@@ -824,7 +788,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomAlert("Referral Link copied successfully!", "success"); 
         });
 
-        // Save Settings
         document.getElementById('settingsForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
             const isEnabled = document.getElementById('emailNotifToggle').checked;
@@ -848,10 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-
-
-/* ==========================================================================
+    /* ==========================================================================
        10. BLOG SEARCH & LOAD MORE POSTS
        ========================================================================== */
     const blogSearch = document.getElementById('blogSearch');
@@ -861,24 +821,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const blogCards = document.querySelectorAll('.blog-card');
             
             blogCards.forEach(card => {
-                // Crawls the text content of the entire card
                 const cardText = card.innerText.toLowerCase();
                 if (cardText.includes(searchTerm)) {
-                    card.style.display = 'flex'; // Restore visibility
+                    card.style.display = 'flex'; 
                 } else {
-                    card.style.display = 'none'; // Hide
+                    card.style.display = 'none'; 
                 }
             });
         });
     }
 
-    // Load Older Posts Button Logic
     const loadOlderBtn = document.querySelector('.fa-rotate-right')?.parentElement;
     if (loadOlderBtn) {
         loadOlderBtn.addEventListener('click', () => {
             showCustomAlert("Fetching older posts from server...", "processing");
             setTimeout(() => {
-                // Mock response until backend Blog API is ready
                 showCustomAlert("No older posts found at the moment.", "info");
             }, 1500);
         });
@@ -889,17 +846,14 @@ document.addEventListener('DOMContentLoaded', () => {
        ========================================================================== */
     if (currentPath.includes('admin') && token) {
         
-        // Protect Admin Page
         const user = JSON.parse(localStorage.getItem('urjii_user'));
         if (!user || user.role !== 'admin') {
             showCustomAlert("Access Denied. Admin privileges required.", "error", () => {
                 window.location.href = "index.html";
             });
         } else {
-            // Load Admin Stats
             const loadAdminData = async () => {
                 try {
-                    // Fetch Stats
                     const statRes = await fetch(`${API_URL}/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` }});
                     if(statRes.ok) {
                         const stats = await statRes.json();
@@ -908,7 +862,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('statAffiliates').innerText = stats.affiliates;
                     }
 
-                    // Fetch Orders
                     const ordRes = await fetch(`${API_URL}/admin/orders`, { headers: { 'Authorization': `Bearer ${token}` }});
                     if(ordRes.ok) {
                         const orders = await ordRes.json();
@@ -935,7 +888,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                    // Fetch Users
                     const userRes = await fetch(`${API_URL}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` }});
                     if(userRes.ok) {
                         const users = await userRes.json();
@@ -962,7 +914,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             loadAdminData();
 
-            // Admin Logout
             document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
                 localStorage.removeItem('urjii_token');
                 localStorage.removeItem('urjii_user');
@@ -970,17 +921,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     } else if (currentPath.includes('admin') && !token) {
-        // Kick unauthenticated users off the admin page
         window.location.href = "Auth.html";
     } 
     
-    
-    
-    
-    
-    
     /* ==========================================================================
-       09. REAL BACKEND API INTEGRATIONS: CONTACT, REVIEWS & FAQ
+       12. CONTACT, REVIEWS & FAQ
        ========================================================================== */
        
     // CONTACT API
@@ -1005,7 +950,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 e.target.reset(); 
                 showCustomAlert("Message sent! We'll reply shortly.", "success");
-                // Trigger Notification
                 pushNotification("Message Sent", "Your contact inquiry has been delivered to our team.");
             } else {
                 const data = await res.json();
@@ -1058,19 +1002,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
-     
          if (res.ok) {
                 e.target.reset(); 
                 currentRating = 5; 
                 stars.forEach(s => s.classList.add('active', 'fa-solid'));
                 showCustomAlert("Thank you for your feedback!", "success");
-                // Trigger Notification
                 pushNotification("Review Submitted", "Thank you! Your feedback helps us improve.");
             } else {
-                
-                
-                
-                
                 const data = await res.json();
                 showCustomAlert(data.error || "Failed to submit review", "error");
             }
