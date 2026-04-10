@@ -1,4 +1,4 @@
-const CACHE_NAME = 'urjii-software-v4';
+const CACHE_NAME = 'urjii-software-v5';
 const urlsToCache = [
   '/',
   '/index.html',
