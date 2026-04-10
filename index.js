@@ -26,10 +26,14 @@ const MONGODB_URI = process.env.MONGODB_URI;
 const JWT_SECRET = process.env.JWT_SECRET || 'urjii_super_secret_123';
 
 if (MONGODB_URI) {
-    mongoose.connect(MONGODB_URI)
-      .then(() => console.log("MongoDB Connected Successfully"))
-      .catch(err => console.error("MongoDB Connection Error: ", err));
-}
+    mongoose.connect(MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000 // Don't wait 30 seconds to fail
+    })
+      .then(() => console.log("✅ MongoDB Connected Successfully"))
+      .catch(err => console.error("❌ MongoDB Connection Error:", err.message));
+} else {
+    console.error("❌ MONGODB_URI is missing in Vercel!");
+                       }
 
 // Nodemailer Setup
 const transporter = nodemailer.createTransport({
