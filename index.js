@@ -139,6 +139,19 @@ app.post('/api/login', async (req, res) => {
     } catch (error) { res.status(500).json({ error: "Server error during login." }); }
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 // --- FORGOT & RESET PASSWORD ---
 app.post('/api/forgot-password', async (req, res) => {
     try {
@@ -151,9 +164,41 @@ app.post('/api/forgot-password', async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
         await user.save();
 
-        res.status(200).json({ message: "Reset token generated successfully.", resetToken });
+        // THIS IS THE NEW EMAIL CODE
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            await transporter.sendMail({
+                from: `"Urjii Security" <${process.env.EMAIL_USER}>`,
+                to: user.email,
+                subject: `Your Password Reset Token`,
+                html: `<h3>Password Reset Request</h3>
+                       <p>Hello ${user.firstName},</p>
+                       <p>Your secure password reset token is: <b style="font-size:1.2rem; color:#C9A063;">${resetToken}</b></p>
+                       <p>Please copy and paste this token into the website to set a new password. It will expire in 1 hour.</p>`
+            });
+        }
+
+        res.status(200).json({ message: "Reset token generated successfully. Check your email.", resetToken });
     } catch (error) { res.status(500).json({ error: "Server error." }); }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.post('/api/reset-password', async (req, res) => {
     try {
