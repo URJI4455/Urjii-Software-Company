@@ -25,15 +25,27 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 const MONGODB_URI = process.env.MONGODB_URI;
 const JWT_SECRET = process.env.JWT_SECRET || 'urjii_super_secret_123';
 
-if (MONGODB_URI) {
-    mongoose.connect(MONGODB_URI, {
-        serverSelectionTimeoutMS: 5000 // Don't wait 30 seconds to fail
-    })
-      .then(() => console.log("✅ MongoDB Connected Successfully"))
-      .catch(err => console.error("❌ MongoDB Connection Error:", err.message));
-} else {
-    console.error("❌ MONGODB_URI is missing in Vercel!");
-                       }
+// --- SERVERLESS MONGODB CONNECTION ---
+const connectDB = async () => {
+    if (mongoose.connection.readyState >= 1) {
+        return; // Already connected
+    }
+    try {
+        await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000 // Don't wait forever
+        });
+        console.log("✅ MongoDB Connected Successfully");
+    } catch (error) {
+        console.error("❌ MongoDB Connection Error:", error.message);
+    }
+};
+
+// Force connection check on every single API request
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
+// ----------------------------------------
 
 // Nodemailer Setup
 const transporter = nodemailer.createTransport({
