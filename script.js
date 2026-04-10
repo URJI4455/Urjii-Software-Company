@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================================================
        01. CONFIGURATION, SERVICE WORKER & TELEGRAM WIDGET
        ========================================================================== */
-    const API_URL = '/api'; // Points directly to your Vercel Node.js backend
+    const API_URL = 'https://urjii-software-company.vercel.app/api';// Points directly to your Vercel Node.js backend
     const token = localStorage.getItem('urjii_token');
     
     // Service Worker
