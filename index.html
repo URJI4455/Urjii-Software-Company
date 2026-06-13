@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URHIDU Company | Brand Evolution</title>
+    
+    <!-- Premium Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+
+    <!-- Fallback Redirect -->
+    <noscript>
+        <meta http-equiv="refresh" content="0;url=https://urhidu.pro.et">
+    </noscript>
+
+    <style>
+        /* CSS Variables based on brand requirements */
+        :root {
+            --bg: #000000;
+            --accent: #FF9D00;
+            --text-main: #FFFFFF;
+            --text-sec: #A0A0A0;
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            /* Subtle radial gradient for depth */
+            background-image: radial-gradient(circle at 50% 50%, #1a1000 0%, #000000 100%);
+        }
+
+        /* Background Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Glowing Background Orb */
+        .glow-orb {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(255, 157, 0, 0.08) 0%, rgba(0,0,0,0) 70%);
+            z-index: 2;
+            pointer-events: none;
+            animation: pulseOrb 8s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseOrb {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        }
+
+        /* Main Content Container */
+        main {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* Title Area */
+        .hero-section {
+            position: relative;
+            height: 200px; /* Fixed height to prevent layout shifts */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .title-wrapper {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Character Animation Styling */
+        .char {
+            display: inline-block;
+            transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1),
+                        opacity 1.8s ease,
+                        filter 1.8s ease;
+            white-space: pre;
+        }
+
+        /* Old Brand Styles */
+        #old-title h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--text-sec);
+            margin-bottom: 0.5rem;
+        }
+
+        #old-title h2 {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            color: var(--text-main);
+        }
+
+        /* New Brand Styles */
+        #new-title {
+            display: none; /* Managed by JS */
+        }
+
+        #new-title h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            transition: color 1.5s ease, text-shadow 1.5s ease;
+        }
+
+        #new-title h1.glow-active {
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(255, 157, 0, 0.6), 
+                         0 0 40px rgba(255, 157, 0, 0.3),
+                         0 0 80px rgba(255, 157, 0, 0.1);
+        }
+
+        .main-tagline {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--text-sec);
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease 0.5s;
+        }
+
+        /* Content Card */
+        .content-body {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .content-body.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+        }
+
+        .message-text {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            color: var(--text-sec);
+            margin-bottom: 1.5rem;
+        }
+
+        .vision-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 2rem 0;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .vision-list span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .vision-list span::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .highlight-brand {
+            color: var(--text-main);
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+
+        .dim-text {
+            font-size: 0.95rem;
+            color: rgba(160, 160, 160, 0.7);
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        /* Action Section */
+        .action-section {
+            margin-top: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease 0.5s;
+        }
+
+        .action-section.visible,
+        .main-tagline.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #FF9D00, #E68D00);
+            color: #000000;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 0 30px rgba(255, 157, 0, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            box-shadow: 0 0 50px rgba(255, 157, 0, 0.5);
+            transform: translateY(-3px);
+            background: linear-gradient(135deg, #FFB033, #FF9D00);
+        }
+
+        .cta-button .arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover .arrow {
+            transform: translateX(5px);
+        }
+
+        /* Progress Bar */
+        .redirect-container {
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.8rem;
+        }
+
+        .progress-fill {
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            transform-origin: left;
+            transform: scaleX(1);
+        }
+
+        .progress-fill.animate {
+            animation: shrinkProgress 10s linear forwards;
+        }
+
+        @keyframes shrinkProgress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        .redirect-text {
+            font-size: 0.85rem;
+            color: var(--text-sec);
+            letter-spacing: 0.05em;
+        }
+
+        #countdown {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transition: opacity 1.5s ease 1s;
+        }
+
+        footer.visible {
+            opacity: 1;
+        }
+
+        .footer-content {
+            font-size: 0.85rem;
+            color: var(--text-sec);
+            line-height: 1.8;
+        }
+
+        .footer-content strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .footer-content a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-content a:hover {
+            color: #FFB033;
+            text-decoration: underline;
+        }
+
+        /* Utility classes for initial state */
+        .start-hidden {
+            opacity: 0;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            .content-body {
+                padding: 2rem 1.5rem;
+            }
+            .hero-section {
+                height: 150px;
+            }
+            .vision-list {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient & Interactive Particle Background -->
+    <canvas id="particle-canvas"></canvas>
+    
+    <!-- Glowing Orb Effect -->
+    <div class="glow-orb"></div>
+
+    <main>
+        <!-- Dynamic Hero Section -->
+        <div class="hero-section">
+            <!-- Phase 1: Old Brand -->
+            <div class="title-wrapper" id="old-title" aria-label="URJII SOFTWARE HAS EVOLVED">
+                <h1 id="old-brand" class="start-hidden">URJII SOFTWARE</h1>
+                <h2 id="old-evolved" class="start-hidden">HAS EVOLVED</h2>
+            </div>
+
+            <!-- Phase 2: New Brand -->
+            <div class="title-wrapper" id="new-title" aria-label="URHIDU COMPANY">
+                <h1 id="new-brand">URHIDU COMPANY</h1>
+                <p class="main-tagline" id="main-tagline">"Building Digital Systems Beyond Websites"</p>
+            </div>
+        </div>
+
+        <!-- Phase 3: Content & CTA -->
+        <div class="content-body" id="content-body">
+            <div class="subtitle">Welcome to the next chapter.</div>
+            
+            <div class="message-text">
+                What began as URJII SOFTWARE has grown into something bigger.
+            </div>
+
+            <div class="vision-list">
+                <span>A stronger vision.</span>
+                <span>A broader mission.</span>
+                <span>A renewed identity.</span>
+            </div>
+
+            <div class="message-text">
+                We are now <span class="highlight-brand">URHIDU </span>.
+            </div>
+
+            <div class="dim-text">
+                The same commitment to innovation, technology, and impact — with a brand built for the future.
+            </div>
+
+            <div class="action-section" id="action-section">
+                <a href="https://urhidu.pro.et" class="cta-button">
+                    Visit URHIDU <span class="arrow">&rarr;</span>
+                </a>
+
+                <div class="redirect-container">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="redirect-text">
+                        Redirecting in <span id="countdown">10</span> seconds...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer">
+        <div class="footer-content">
+            <strong>URHIDU Company</strong><br>
+            "Digitizing Local Businesses in Ethiopia"<br>
+            Dire Dawa, Ethiopia &bull; <a href="https://urhidu.pro.et">urhidu.pro.et</a>
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * 1. Cinematic Particle System
+         */
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null };
+        let isSurging = false;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1;
+                this.color = Math.random() > 0.8 ? '#FF9D00' : '#FFFFFF';
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Screen wrapping
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+
+                // Mouse interaction
+                if (mouse.x != null && !isSurging) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 150) {
+                        this.x -= dx / 20;
+                        this.y -= dy / 20;
+                    }
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            let particleCount = (window.innerWidth * window.innerHeight) / 9000;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                // Draw connecting lines
+                for (let j = i; j < particles.length; j++) {
+                    let dx = particles[i].x - particles[j].x;
+                    let dy = particles[i].y - particles[j].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = particles[i].color === '#FF9D00' ? 
+                            `rgba(255, 157, 0, ${0.2 - distance/500})` : 
+                            `rgba(255, 255, 255, ${0.1 - distance/1000})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        function triggerSurge() {
+            isSurging = true;
+            let centerX = canvas.width / 2;
+            let centerY = canvas.height / 3; // Focus near text
+            
+            particles.forEach(p => {
+                let dx = p.x - centerX;
+                let dy = p.y - centerY;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                // Push outwards violently
+                p.vx = (dx / dist) * (Math.random() * 15 + 5);
+                p.vy = (dy / dist) * (Math.random() * 15 + 5);
+            });
+
+            // Gradually slow down
+            setTimeout(() => {
+                let slowdown = setInterval(() => {
+                    let stopped = true;
+                    particles.forEach(p => {
+                        p.vx *= 0.9;
+                        p.vy *= 0.9;
+                        if (Math.abs(p.vx) > 0.5 || Math.abs(p.vy) > 0.5) stopped = false;
+                    });
+                    if (stopped) {
+                        clearInterval(slowdown);
+                        isSurging = false;
+                        // Reset to normal gentle speed
+                        particles.forEach(p => {
+                            p.vx = (Math.random() - 0.5) * 0.5;
+                            p.vy = (Math.random() - 0.5) * 0.5;
+                        });
+                    }
+                }, 50);
+            }, 500);
+        }
+
+        initParticles();
+        animateParticles();
+
+        /**
+         * 2. Text Animation & Timeline Controller
+         */
+
+        function splitTextToSpans(elementId) {
+            const el = document.getElementById(elementId);
+            const text = el.innerText;
+            el.innerHTML = '';
+            text.split('').forEach(char => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.innerHTML = char === ' ' ? '&nbsp;' : char;
+                el.appendChild(span);
+            });
+        }
+
+        // Apply span splitting to headings
+        splitTextToSpans('old-brand');
+        splitTextToSpans('old-evolved');
+        splitTextToSpans('new-brand');
+
+        function fadeInText(elementId) {
+            const el = document.getElementById(elementId);
+            el.classList.remove('start-hidden');
+            const chars = el.querySelectorAll('.char');
+            chars.forEach((char) => {
+                char.style.opacity = '0';
+                char.style.transform = 'translateY(20px) scale(0.9)';
+                char.style.filter = 'blur(10px)';
+                
+                // Trigger reflow
+                void char.offsetWidth;
+                
+                char.style.opacity = '1';
+                char.style.transform = 'translateY(0) scale(1)';
+                char.style.filter = 'blur(0)';
+            });
+        }
+
+        function scatterOutText(elementId) {
+            const el = document.getElementById(elementId);
+            const chars = el.querySelectorAll('.char');
+            chars.forEach((char) => {
+                const x = (Math.random() - 0.5) * 600;
+                const y = (Math.random() - 0.5) * 600;
+                const rot = (Math.random() - 0.5) * 180;
+                const scale = Math.random() * 2 + 0.5;
+                
+                char.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg) scale(${scale})`;
+                char.style.opacity = '0';
+                char.style.filter = 'blur(20px)';
+            });
+        }
+
+        function prepareScatterIn(elementId) {
+            const el = document.getElementById(elementId);
+            const parent = el.parentElement;
+            parent.style.display = 'flex'; // Show container
+
+            const chars = el.querySelectorAll('.char');
+            chars.forEach((char) => {
+                const x = (Math.random() - 0.5) * 600;
+                const y = (Math.random() - 0.5) * 600;
+                const rot = (Math.random() - 0.5) * 180;
+                const scale = Math.random() * 3;
+                
+                // Disable transition temporarily to set initial state instantly
+                char.style.transition = 'none';
+                char.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg) scale(${scale})`;
+                char.style.opacity = '0';
+                char.style.filter = 'blur(20px)';
+            });
+        }
+
+        function executeScatterIn(elementId) {
+            const el = document.getElementById(elementId);
+            const chars = el.querySelectorAll('.char');
+            chars.forEach((char) => {
+                // Re-enable transition
+                char.style.transition = 'transform 1.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.8s ease, filter 1.8s ease';
+                
+                // Trigger reflow
+                void char.offsetWidth;
+                
+                char.style.transform = 'translate(0px, 0px) rotate(0deg) scale(1)';
+                char.style.opacity = '1';
+                char.style.filter = 'blur(0px)';
+            });
+        }
+
+        /**
+         * 3. Execution Timeline
+         */
+        const timeline = {
+            t0: 500,    // URJII SOFTWARE fades in
+            t1: 1500,   // HAS EVOLVED fades in
+            t2: 3800,   // Scatter out begins + particle surge
+            t3: 4200,   // URHIDU COMPANY reforms
+            t4: 5800,   // URHIDU COMPANY glows + Tagline appears
+            t5: 6800,   // Main body content fades in
+            t6: 7800,   // Action section (CTA + Redirect) & Footer fades in + countdown starts
+        };
+
+        // Start Sequence
+        setTimeout(() => fadeInText('old-brand'), timeline.t0);
+        setTimeout(() => fadeInText('old-evolved'), timeline.t1);
+
+        setTimeout(() => {
+            scatterOutText('old-brand');
+            scatterOutText('old-evolved');
+            triggerSurge(); // Canvas particles react
+        }, timeline.t2);
+
+        setTimeout(() => {
+            document.getElementById('old-title').style.display = 'none';
+            prepareScatterIn('new-brand');
+            // Trigger reflow
+            void document.getElementById('new-brand').offsetWidth;
+            executeScatterIn('new-brand');
+        }, timeline.t3);
+
+        setTimeout(() => {
+            document.getElementById('new-brand').classList.add('glow-active');
+            document.getElementById('main-tagline').classList.add('visible');
+        }, timeline.t4);
+
+        setTimeout(() => {
+            document.getElementById('content-body').classList.add('visible');
+        }, timeline.t5);
+
+        setTimeout(() => {
+            document.getElementById('action-section').classList.add('visible');
+            document.getElementById('footer').classList.add('visible');
+            startRedirectSequence();
+        }, timeline.t6);
+
+        /**
+         * 4. Redirect Logic
+         */
+        function startRedirectSequence() {
+            const redirectUrl = "https://urhidu.pro.et";
+            let timeLeft = 10;
+            const countdownEl = document.getElementById('countdown');
+            const progressFill = document.getElementById('progress-fill');
+            
+            // Start CSS animation
+            progressFill.classList.add('animate');
+
+            // Update text
+            const timer = setInterval(() => {
+                timeLeft--;
+                countdownEl.innerText = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    window.location.href = redirectUrl;
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+      </html>
